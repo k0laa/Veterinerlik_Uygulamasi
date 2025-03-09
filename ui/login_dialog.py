@@ -128,7 +128,7 @@ class LoginDialog(QDialog):
         layout.addSpacing(10)
 
         # Bilgi notu
-        info = QLabel("Varsayılan giriş: admin / admin123")
+        info = QLabel("Varsayılan giriş: 123 / 123")
         info.setObjectName("info")
         info.setAlignment(Qt.AlignCenter)
         layout.addWidget(info)

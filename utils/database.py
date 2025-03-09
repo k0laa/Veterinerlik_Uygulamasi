@@ -8,6 +8,7 @@ class Database:
     def __init__(self):
         self.db_file = Path("veteriner.db")
         self.create_tables()
+        self.migrate_database()
         self.create_default_admin()
 
     def create_tables(self):
@@ -43,22 +44,24 @@ class Database:
 
         # Hastalar tablosu
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS hastalar (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                hayvan_adi TEXT NOT NULL,
-                sahip_adi TEXT NOT NULL,
-                tur TEXT NOT NULL,
-                cinsiyet TEXT NOT NULL,
-                yas INTEGER NOT NULL,
-                durum TEXT NOT NULL,
-                ilerleme INTEGER NOT NULL,
-                aciklama TEXT,
-                ilaclar TEXT,
-                ekleyen_id INTEGER,
-                ekleme_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (ekleyen_id) REFERENCES kullanicilar (id)
-            )
-        ''')
+                CREATE TABLE IF NOT EXISTS hastalar (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    hayvan_adi TEXT NOT NULL,
+                    sahip_adi TEXT NOT NULL,
+                    tur TEXT NOT NULL,
+                    cins TEXT,
+                    cinsiyet TEXT NOT NULL,
+                    yas INTEGER NOT NULL,
+                    durum TEXT NOT NULL,
+                    ilerleme INTEGER NOT NULL,
+                    sikayet TEXT,
+                    aciklama TEXT,
+                    ilaclar TEXT,
+                    ekleyen_id INTEGER,
+                    ekleme_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (ekleyen_id) REFERENCES kullanicilar(id)
+                )
+            ''')
 
         # Varsayılan yetkileri ekle
         cursor.execute('''INSERT OR IGNORE INTO yetkiler VALUES 
@@ -164,11 +167,12 @@ class Database:
             cursor = conn.cursor()
 
             cursor.execute('''
-                INSERT INTO hastalar (
-                    hayvan_adi, sahip_adi, tur, cinsiyet, yas, 
-                    durum, ilerleme, aciklama, ilaclar, ekleyen_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data['yas'], data['durum'], data['ilerleme'], data.get('aciklama', ''), data.get('ilaclar', ''), data.get('ekleyen_id', None)))
+                        INSERT INTO hastalar (
+                            hayvan_adi, sahip_adi, tur, cinsiyet, cins, yas, 
+                            durum, ilerleme, sikayet, aciklama, ilaclar, ekleyen_id
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data['cins'], data['yas'], data['durum'], data['ilerleme'], data.get('sikayet', ''),  # Fix: Use get() with default value
+                          data.get('aciklama', ''), data.get('ilaclar', ''), data.get('ekleyen_id')))
 
             conn.commit()
             conn.close()
@@ -185,11 +189,11 @@ class Database:
             cursor = conn.cursor()
 
             cursor.execute('''
-                SELECT id, hayvan_adi, sahip_adi, tur, cinsiyet, 
-                       yas, durum, ilerleme, aciklama, ilaclar 
-                FROM hastalar
-                ORDER BY id DESC
-            ''')
+                        SELECT id, hayvan_adi, sahip_adi, tur, cins, cinsiyet, 
+                               yas, durum, ilerleme, sikayet, aciklama, ilaclar, ekleme_tarihi 
+                        FROM hastalar
+                        ORDER BY id DESC
+                    ''')
 
             records = cursor.fetchall()
             conn.close()
@@ -261,11 +265,11 @@ class Database:
             cursor = conn.cursor()
 
             cursor.execute('''
-                UPDATE hastalar 
-                SET hayvan_adi=?, sahip_adi=?, tur=?, cinsiyet=?, yas=?, 
-                    durum=?, ilerleme=?, aciklama=?, ilaclar=?
-                WHERE id=?
-            ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data['yas'], data['durum'], data['ilerleme'], data['aciklama'], data['ilaclar'], record_id))
+                        UPDATE hastalar 
+                        SET hayvan_adi=?, sahip_adi=?, tur=?, cinsiyet=?, cins=?, yas=?, 
+                            durum=?, ilerleme=?, sikayet=?, aciklama=?, ilaclar=?
+                        WHERE id=?
+                    ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data['cins'], data['yas'], data['durum'], data['ilerleme'], data['sikayet'], data['aciklama'], data['ilaclar'], record_id))
 
             conn.commit()
             conn.close()
@@ -274,3 +278,97 @@ class Database:
         except Exception as e:
             print(f"Güncelleme hatası: {e}")
             return False
+
+    def migrate_database(self):
+        """Veritabanı şemasını günceller"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            # Mevcut sütunları kontrol et
+            cursor.execute("PRAGMA table_info(hastalar)")
+            columns = [column[1] for column in cursor.fetchall()]
+
+            # 'cins' sütunu yoksa ekle
+            if 'sikayet' not in columns:
+                cursor.execute('ALTER TABLE hastalar ADD COLUMN sikayet TEXT')
+                print("'sikayet' sütunu eklendi")
+
+            conn.commit()
+            conn.close()
+
+        except Exception as e:
+            print(f"Migrasyon hatası: {e}")
+
+    def get_waiting_patients(self):
+        """Muayene bekleyen hastaları getirir"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                SELECT id, hayvan_adi, sahip_adi, tur, cins, cinsiyet,
+                       yas, durum, ilerleme, sikayet, aciklama, ilaclar, 
+                       ekleme_tarihi
+                FROM hastalar
+                WHERE durum = 'Muayene Bekliyor'
+                ORDER BY ekleme_tarihi DESC
+            ''')
+
+            records = cursor.fetchall()
+            conn.close()
+            return records
+
+        except Exception as e:
+            print(f"Veritabanı hatası: {e}")
+            return []
+
+    def update_patient_status(self, patient_id, new_status):
+        """Hasta durumunu günceller"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                UPDATE hastalar 
+                SET durum = ?
+                WHERE id = ?
+            ''', (new_status, patient_id))
+
+            conn.commit()
+            conn.close()
+            return True
+
+        except Exception as e:
+            print(f"Veritabanı hatası: {e}")
+            return False
+
+    def muayeneye_al(self, hasta_id):
+        """Hastayı muayeneye alır ve bilgilerini getirir"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            # Durumu güncelle
+            cursor.execute('''
+                UPDATE hastalar 
+                SET durum = 'Teşhis Konuldu'
+                WHERE id = ?
+            ''', (hasta_id,))
+
+            # Hasta bilgilerini getir
+            cursor.execute('''
+                SELECT hayvan_adi, sahip_adi, tur, cins, cinsiyet, yas,
+                       sikayet, aciklama, ilaclar, durum, ilerleme
+                FROM hastalar
+                WHERE id = ?
+            ''', (hasta_id,))
+            hasta = cursor.fetchone()
+
+            conn.commit()
+            conn.close()
+            return hasta if hasta else None
+
+        except Exception as e:
+            print(f"Muayeneye alma hatası: {e}")
+            return None

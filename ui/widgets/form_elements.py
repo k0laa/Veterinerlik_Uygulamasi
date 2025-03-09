@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QLineEdit, QComboBox, QRadioButton, QSpinBox, 
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+                             QLineEdit, QComboBox, QRadioButton, QSpinBox,
                              QSlider, QProgressBar, QTextEdit)
 from PyQt5.QtCore import Qt
 from ..styles import INPUT_STYLE, RADIO_STYLE, SLIDER_STYLE, PROGRESS_STYLE
@@ -29,6 +29,15 @@ class FormElementsWidget(QWidget):
         sahip_layout.addWidget(sahip_label)
         sahip_layout.addWidget(self.elements['sahip_input'])
         layout.addLayout(sahip_layout)
+
+        # Cins alanı eklendi
+        cins_layout = QHBoxLayout()
+        cins_label = QLabel("Cins:")
+        self.elements['cins_input'] = QLineEdit()
+        self.elements['cins_input'].setStyleSheet(INPUT_STYLE)
+        cins_layout.addWidget(cins_label)
+        cins_layout.addWidget(self.elements['cins_input'])
+        layout.addLayout(cins_layout)
 
         # Tür seçimi
         tur_layout = QHBoxLayout()
@@ -62,6 +71,14 @@ class FormElementsWidget(QWidget):
         yas_layout.addWidget(self.elements['yas_spinbox'])
         layout.addLayout(yas_layout)
 
+        # Şikayet alanı
+        sikayet_label = QLabel("Şikayet:")
+        self.elements['sikayet_text'] = QTextEdit()
+        self.elements['sikayet_text'].setStyleSheet(INPUT_STYLE)
+        self.elements['sikayet_text'].setMaximumHeight(100)
+        layout.addWidget(sikayet_label)
+        layout.addWidget(self.elements['sikayet_text'])
+
         # Açıklama text alanı
         aciklama_label = QLabel("Açıklama:")
         self.elements['aciklama_text'] = QTextEdit()
@@ -73,4 +90,4 @@ class FormElementsWidget(QWidget):
 def create_form_elements():
     """Form elemanlarını oluşturur ve döndürür"""
     widget = FormElementsWidget()
-    return widget.elements 
+    return widget.elements
