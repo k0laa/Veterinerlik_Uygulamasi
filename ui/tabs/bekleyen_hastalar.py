@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QLabel, QScrollArea, QWidget, QPushButton)
+from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QLabel, QScrollArea, QWidget, QPushButton, QMainWindow)
 from ..styles import GROUP_STYLE, BUTTON_STYLE
 
 
 class HastaKartiWidget(QWidget):
     def __init__(self, hasta_data, parent=None):
         super().__init__(parent)
+        self.hasta_data = hasta_data
         self.setup_ui(hasta_data)
 
     def setup_ui(self, hasta_data):
@@ -41,16 +42,38 @@ class HastaKartiWidget(QWidget):
 
         muayene_btn = QPushButton("Muayeneye Al")
         muayene_btn.setStyleSheet(BUTTON_STYLE)
-        hasta_id = hasta_data[0]  # ID'yi sakla
-        muayene_btn.clicked.connect(lambda: self.parent().parent().parent().muayeneye_al(hasta_data[0]))
+        # Store the patient ID and connect to main window's method
+        self.hasta_id = self.hasta_data[0]
+        muayene_btn.clicked.connect(self.muayeneye_al_clicked)
 
         detay_btn = QPushButton("Detayları Göster")
         detay_btn.setStyleSheet(BUTTON_STYLE)
-        detay_btn.clicked.connect(lambda: self.parent().parent().parent().detay_goster(hasta_data[0]))
+        detay_btn.clicked.connect(self.detay_goster_clicked)
 
         button_layout.addWidget(muayene_btn)
         button_layout.addWidget(detay_btn)
         layout.addLayout(button_layout)
+
+    def get_main_window(self):
+        """Get reference to main window"""
+        parent = self.parent()
+        while parent is not None:
+            if isinstance(parent, QMainWindow):
+                return parent
+            parent = parent.parent()
+        return None
+
+    def muayeneye_al_clicked(self):
+        """Handle muayene button click"""
+        main_window = self.get_main_window()
+        if main_window:
+            main_window.muayeneye_al(self.hasta_id)
+
+    def detay_goster_clicked(self):
+        """Handle detay button click"""
+        main_window = self.get_main_window()
+        if main_window:
+            main_window.detay_goster(self.hasta_id)
 
 
 def setup_bekleyen_hastalar_tab(window, tab):

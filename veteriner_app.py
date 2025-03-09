@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QTableWidgetItem, QToolBar, QLabel, QTableWidget)
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QTableWidgetItem, QToolBar, QLabel, QTableWidget, QScrollArea, QWidget, QVBoxLayout)
 from PyQt5.QtCore import Qt
 from ui.main_window import setup_ui
 from ui.login_dialog import LoginDialog
@@ -398,46 +397,39 @@ class VeterinerApp(QMainWindow):
             QMessageBox.critical(self, "Hata", f"Bekleyen hastalar güncellenirken hata: {str(e)}")
 
     def muayeneye_al(self, hasta_id):
-        """Hastayı muayeneye alır ve kayıt ekranına yönlendirir"""
         try:
             hasta = self.db.muayeneye_al(hasta_id)
             if hasta:
-                # Hasta kayıt sekmesine geç
+                # Switch to patient registration tab
                 self.stacked_widget.setCurrentIndex(0)
                 self.hasta_kayit_action.setChecked(True)
                 self.raporlar_action.setChecked(False)
                 self.bekleyen_action.setChecked(False)
 
-                # Form alanlarını doldur
-                self.form_elements['ad_input'].setText(str(hasta[0]))
-                self.form_elements['sahip_input'].setText(str(hasta[1]))
-                self.form_elements['tur_combo'].setCurrentText(str(hasta[2]))
-                self.form_elements['cins_input'].setText(str(hasta[3]))
+                # Fill form fields with patient data
+                self.form_elements['ad_input'].setText(hasta[0])
+                self.form_elements['sahip_input'].setText(hasta[1])
+                self.form_elements['tur_combo'].setCurrentText(hasta[2])
+                self.form_elements['cins_input'].setText(hasta[3])
                 self.form_elements['erkek_radio'].setChecked(hasta[4] == "Erkek")
                 self.form_elements['disi_radio'].setChecked(hasta[4] == "Dişi")
-                self.form_elements['yas_spinbox'].setValue(int(hasta[5]))
-                self.form_elements['sikayet_text'].setText(str(hasta[6] or ""))
-                self.form_elements['aciklama_text'].setText(str(hasta[7] or ""))
+                self.form_elements['yas_spinbox'].setValue(hasta[5])
+                self.form_elements['sikayet_text'].setText(hasta[6] or "")
+                self.form_elements['aciklama_text'].setText(hasta[7] or "")
 
-                # Durum ve ilerlemeyi güncelle
-                self.durum_takip.set_durum(hasta[9], hasta[10])
+                # Update status
+                self.durum_takip.set_durum("Teşhis Konuldu", 20)
 
-                # İlaç listesini güncelle
-                if hasta[8]:
-                    ilaclar = hasta[8].split(", ")
-                    for i in range(self.ilac_listesi.count()):
-                        item = self.ilac_listesi.item(i)
-                        item.setSelected(item.text() in ilaclar)
-
-                # Listeleri güncelle
+                # Refresh lists
                 self.refresh_bekleyen_hastalar()
                 self.refresh_data()
 
                 QMessageBox.information(self, "Başarılı", "Hasta muayeneye alındı.")
             else:
                 QMessageBox.warning(self, "Hata", "Hasta muayeneye alınamadı.")
+
         except Exception as e:
-            print(f"Muayeneye alma hatası: {str(e)}")  # Hata ayıklama için
+            print(f"Muayeneye alma hatası: {str(e)}")
             QMessageBox.critical(self, "Hata", f"Muayeneye alma işlemi sırasında hata: {str(e)}")
 
     def detay_goster(self, hasta_id):
