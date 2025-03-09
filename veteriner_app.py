@@ -4,6 +4,7 @@ from ui.main_window import setup_ui
 from ui.login_dialog import LoginDialog
 from utils.database import Database
 from ui.styles import MAIN_STYLE
+import sys
 
 
 class VeterinerApp(QMainWindow):
@@ -12,6 +13,7 @@ class VeterinerApp(QMainWindow):
         self.db = Database()
         self.user_data = None
         self._loading_reports = False
+        self.current_edit_id = None  # Düzenlenen kaydın ID'sini tutacak değişken
 
         # Kullanıcı girişi için bir dialog oluşturulur.
         login_dialog = LoginDialog(self.db)
@@ -26,7 +28,7 @@ class VeterinerApp(QMainWindow):
         else:
             # Eğer dialog'den reddet (Cancel) cevabı alındıysa,
             # Uygulama kapatılır.
-            self.close()
+            sys.exit()
 
     def setup_app(self):
         """Uygulama arayüzünü oluşturur"""
@@ -90,54 +92,70 @@ class VeterinerApp(QMainWindow):
             self.delete_button.setEnabled(False)
 
     def save_to_database(self):
-        """Hasta kaydını veritabanına kaydeder"""
+        """Hasta kaydını veritabanına kaydeder veya günceller"""
         if not self.user_data['yetkiler']['hasta_ekle']:
-            QMessageBox.warning(self, "Yetkisiz İşlem", "Bu işlem için yetkiniz bulunmamaktadır!")
+            QMessageBox.warning(self, "Yetkisiz İşlem", "Hasta kaydı ekleme yetkiniz yok!")
             return
 
         try:
-            if not self.form_elements['ad_input'].text() or not self.form_elements['sahip_input'].text():
-                QMessageBox.warning(self, "Uyarı", "Hayvan adı ve sahip adı alanları boş bırakılamaz!")
-                return
-
-            durum_bilgisi = self.durum_takip.get_durum()
-
-            # Açıklama metnini düzenle
-            aciklama = self.form_elements['aciklama_text'].toPlainText()
-            if not aciklama:  # Açıklama boşsa
-                aciklama = "Hasta için henüz bir açıklama girilmedi."
-
+            # Form verilerini al
             data = {'hayvan_adi': self.form_elements['ad_input'].text(), 'sahip_adi': self.form_elements['sahip_input'].text(), 'tur': self.form_elements['tur_combo'].currentText(),
-                'cinsiyet': "Erkek" if self.form_elements['erkek_radio'].isChecked() else "Dişi", 'yas': self.form_elements['yas_spinbox'].value(), 'durum': durum_bilgisi['durum'], 'ilerleme': durum_bilgisi['ilerleme'],
-                # İlerleme değerini doğrudan al
-                'aciklama': aciklama, 'ilaclar': ", ".join([item.text() for item in self.ilac_listesi.selectedItems()]), 'ekleyen_id': self.user_data['user_id']}
+                    'cinsiyet': 'Erkek' if self.form_elements['erkek_radio'].isChecked() else 'Dişi', 'yas': self.form_elements['yas_spinbox'].value(), 'aciklama': self.form_elements['aciklama_text'].toPlainText(),
+                    'ekleyen_id': self.user_data['user_id']}
 
-            if self.db.add_patient(data):
-                self.clear_form()
-                self.refresh_data()
-                QMessageBox.information(self, "Başarılı", "Kayıt başarıyla eklendi!")
+            # Durum ve ilerleme bilgilerini al
+            durum_data = self.durum_takip.get_durum()
+            data.update(durum_data)
+
+            # Seçili ilaçları al
+            ilaclar = []
+            for i in range(self.ilac_listesi.count()):
+                if self.ilac_listesi.item(i).isSelected():
+                    ilaclar.append(self.ilac_listesi.item(i).text())
+            data['ilaclar'] = ', '.join(ilaclar)
+
+            # Eğer düzenleme modundaysa güncelle
+            if self.current_edit_id:
+                success = self.db.update_patient_full(self.current_edit_id, data)
+                message = "Kayıt başarıyla güncellendi."
             else:
-                QMessageBox.critical(self, "Hata", "Kayıt eklenirken bir hata oluştu!")
+                success = self.db.add_patient(data)
+                message = "Yeni kayıt başarıyla eklendi."
+
+            if success:
+                self.clear_form()  # Formu temizle
+                self.refresh_data()  # Tabloyu güncelle
+                QMessageBox.information(self, "Başarılı", message)
+            else:
+                QMessageBox.warning(self, "Hata", "Kayıt işlemi başarısız oldu!")
 
         except Exception as e:
-            QMessageBox.critical(self, "Hata", f"Beklenmeyen bir hata oluştu: {str(e)}")
+            QMessageBox.critical(self, "Hata", f"Kayıt işlemi sırasında bir hata oluştu: {str(e)}")
 
     def clear_form(self):
         """Form alanlarını temizler"""
         try:
+            # Form elemanlarını temizle
             self.form_elements['ad_input'].clear()
             self.form_elements['sahip_input'].clear()
             self.form_elements['tur_combo'].setCurrentIndex(0)
-            self.form_elements['erkek_radio'].setChecked(False)
-            self.form_elements['disi_radio'].setChecked(False)
+            self.form_elements['erkek_radio'].setChecked(True)
             self.form_elements['yas_spinbox'].setValue(0)
             self.form_elements['aciklama_text'].clear()
-            self.ilac_listesi.clearSelection()
-            # Durum takibini sıfırla
+
+            # İlaç listesindeki seçimleri kaldır
+            for i in range(self.ilac_listesi.count()):
+                self.ilac_listesi.item(i).setSelected(False)
+
+            # Durum ve ilerlemeyi sıfırla
             self.durum_takip.durum_combo.setCurrentIndex(0)
             self.durum_takip.ilerleme_bar.setValue(0)
+
+            # Düzenleme modunu sıfırla
+            self.current_edit_id = None
+
         except Exception as e:
-            print(f"Form temizleme hatası: {e}")
+            QMessageBox.critical(self, "Hata", f"Form temizleme hatası: {str(e)}")
 
     def refresh_data(self):
         """Tüm verileri yeniler"""
@@ -224,16 +242,16 @@ class VeterinerApp(QMainWindow):
             new_value = item.text()
             record_id = self.rapor_table.item(row, 0).text()
             column_names = ["id",  # 0
-                "hayvan_adi",  # 1
-                "sahip_adi",  # 2
-                "tur",  # 3
-                "cinsiyet",  # 4
-                "yas",  # 5
-                "durum",  # 6
-                "ilerleme",  # 7
-                "aciklama",  # 8
-                "ilaclar"  # 9
-            ]
+                            "hayvan_adi",  # 1
+                            "sahip_adi",  # 2
+                            "tur",  # 3
+                            "cinsiyet",  # 4
+                            "yas",  # 5
+                            "durum",  # 6
+                            "ilerleme",  # 7
+                            "aciklama",  # 8
+                            "ilaclar"  # 9
+                            ]
 
             if self.db.update_patient(record_id, column_names[col], new_value):
                 self.refresh_data()
@@ -242,3 +260,54 @@ class VeterinerApp(QMainWindow):
                 self.refresh_data()
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Güncelleme hatası: {str(e)}")
+
+    def edit_record(self):
+        """Seçili kaydı hasta kayıt formuna aktarır"""
+        try:
+            current_row = self.rapor_table.currentRow()
+            if current_row < 0:
+                QMessageBox.warning(self, "Uyarı", "Lütfen düzenlenecek bir kayıt seçin!")
+                return
+
+            # Verileri al
+            record_id = int(self.rapor_table.item(current_row, 0).text())
+            hayvan_adi = self.rapor_table.item(current_row, 1).text()
+            sahip_adi = self.rapor_table.item(current_row, 2).text()
+            tur = self.rapor_table.item(current_row, 3).text()
+            cinsiyet = self.rapor_table.item(current_row, 4).text()
+            yas = int(self.rapor_table.item(current_row, 5).text())
+            durum = self.rapor_table.item(current_row, 6).text()
+            ilerleme = int(self.rapor_table.item(current_row, 7).text())
+            aciklama = self.rapor_table.item(current_row, 8).text()
+            ilaclar = self.rapor_table.item(current_row, 9).text().split(', ') if self.rapor_table.item(current_row, 9).text() else []
+
+            # Düzenleme modunu aktifleştir
+            self.current_edit_id = record_id
+
+            # Form elemanlarını doldur
+            self.form_elements['ad_input'].setText(hayvan_adi)
+            self.form_elements['sahip_input'].setText(sahip_adi)
+            self.form_elements['tur_combo'].setCurrentText(tur)
+            self.form_elements['erkek_radio'].setChecked(cinsiyet == 'Erkek')
+            self.form_elements['disi_radio'].setChecked(cinsiyet == 'Dişi')
+            self.form_elements['yas_spinbox'].setValue(yas)
+            self.form_elements['aciklama_text'].setText(aciklama)
+
+            # İlaç listesini güncelle
+            for i in range(self.ilac_listesi.count()):
+                item = self.ilac_listesi.item(i)
+                item.setSelected(item.text() in ilaclar)
+
+            # Durum ve ilerlemeyi güncelle
+            self.durum_takip.durum_combo.setCurrentText(durum)
+            self.durum_takip.ilerleme_bar.setValue(ilerleme)
+
+            # Hasta kayıt sekmesine geç
+            self.stacked_widget.setCurrentIndex(0)
+            self.hasta_kayit_action.setChecked(True)
+            self.raporlar_action.setChecked(False)
+
+            QMessageBox.information(self, "Bilgi", "Kayıt düzenleme moduna geçildi. Değişiklikleri yaptıktan sonra 'Kaydet' butonuna tıklayın.")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Hata", f"Kayıt düzenleme hatası: {str(e)}")

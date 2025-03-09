@@ -88,7 +88,7 @@ class Database:
             cursor.execute('''
                 INSERT INTO kullanicilar (kullanici_adi, sifre_hash, tuz, rol, ad_soyad, email)
                 VALUES (?, ?, ?, ?, ?, ?)
-            ''', ('admin', sifre_hash, tuz, 'admin', 'Sistem Yöneticisi', 'admin@veteriner.com'))
+            ''', ('123', sifre_hash, tuz, 'admin', 'Sistem Yöneticisi', 'admin@veteriner.com'))
 
             conn.commit()
             conn.close()
@@ -253,3 +253,24 @@ class Database:
         except Exception as e:
             print(f"Veritabanı hatası: {e}")
             return {'total': 0, 'success_rate': 0}
+
+    def update_patient_full(self, record_id, data):
+        """Hasta kaydını tüm alanlarıyla günceller"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                UPDATE hastalar 
+                SET hayvan_adi=?, sahip_adi=?, tur=?, cinsiyet=?, yas=?, 
+                    durum=?, ilerleme=?, aciklama=?, ilaclar=?
+                WHERE id=?
+            ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data['yas'], data['durum'], data['ilerleme'], data['aciklama'], data['ilaclar'], record_id))
+
+            conn.commit()
+            conn.close()
+            return True
+
+        except Exception as e:
+            print(f"Güncelleme hatası: {e}")
+            return False

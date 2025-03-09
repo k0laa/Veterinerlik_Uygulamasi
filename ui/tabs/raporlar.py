@@ -46,6 +46,9 @@ def setup_raporlar_tab(window, tab):
             "İlaçlar"
         ])
 
+        # Tabloyu salt okunur yap
+        table.setEditTriggers(QTableWidget.NoEditTriggers)
+
         # Tablo özelliklerini ayarla
         table.setStyleSheet(TABLE_STYLE)
         table.setAlternatingRowColors(True)
@@ -68,10 +71,20 @@ def setup_raporlar_tab(window, tab):
         layout.addWidget(QLabel("Hasta Raporları"))
         layout.addWidget(table)
 
+        # Buton container
+        button_layout = QHBoxLayout()
+
+        # Düzenle butonu
+        edit_button = QPushButton("Seçili Kaydı Düzenle")
+        edit_button.setStyleSheet(BUTTON_STYLE)
+        button_layout.addWidget(edit_button)
+
         # Silme butonu
         delete_button = QPushButton("Seçili Kaydı Sil")
         delete_button.setStyleSheet(BUTTON_STYLE)
-        layout.addWidget(delete_button)
+        button_layout.addWidget(delete_button)
+
+        layout.addLayout(button_layout)
 
         # Window'a elementleri ekle
         window.rapor_table = table
@@ -82,4 +95,4 @@ def setup_raporlar_tab(window, tab):
         # Sinyal bağlantıları
         search_input.textChanged.connect(window.filter_reports)
         delete_button.clicked.connect(window.delete_record)
-        table.itemChanged.connect(window.on_table_item_changed)
+        edit_button.clicked.connect(window.edit_record)

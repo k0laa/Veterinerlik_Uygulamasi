@@ -1,3 +1,5 @@
+import sys
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 from PyQt5.QtCore import Qt
 
@@ -166,3 +168,9 @@ class LoginDialog(QDialog):
 
     def get_user_data(self):
         return self.user_data
+
+    # ui/login_dialog.py içinde LoginDialog sınıfına ekle
+    def closeEvent(self, event):
+        """Dialog penceresi kapatıldığında çağrılır"""
+        event.accept()  # Pencereyi kapat
+        sys.exit()  # Programı sonlandır
