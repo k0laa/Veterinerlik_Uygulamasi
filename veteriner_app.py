@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QTableWidgetItem,
-                             QToolBar, QLabel, QTableWidget)
+from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QTableWidgetItem, QToolBar, QLabel, QTableWidget)
 from PyQt5.QtGui import QIcon
 from ui.main_window import setup_ui
 from ui.login_dialog import LoginDialog
@@ -56,6 +55,17 @@ class VeterinerApp(QMainWindow):
         setup_ui(self)
         self.update_ui_permissions()
 
+        # Başlangıçta verileri yükle
+        self.refresh_data()
+
+        # Hasta kayıt sekmesini göster
+        self.stacked_widget.setCurrentIndex(0)
+        self.raporlar_action.setChecked(False)
+        self.hasta_kayit_action.setChecked(True)
+
+        # Pencereyi göster
+        self.show()
+
     def update_ui_permissions(self):
         """Kullanıcı yetkilerine göre UI elementlerini günceller"""
         yetkiler = self.user_data['yetkiler']
@@ -82,43 +92,35 @@ class VeterinerApp(QMainWindow):
     def save_to_database(self):
         """Hasta kaydını veritabanına kaydeder"""
         if not self.user_data['yetkiler']['hasta_ekle']:
-            QMessageBox.warning(self, "Yetkisiz İşlem",
-                                "Bu işlem için yetkiniz bulunmamaktadır!")
+            QMessageBox.warning(self, "Yetkisiz İşlem", "Bu işlem için yetkiniz bulunmamaktadır!")
             return
 
         try:
             if not self.form_elements['ad_input'].text() or not self.form_elements['sahip_input'].text():
-                QMessageBox.warning(
-                    self, "Uyarı", "Hayvan adı ve sahip adı alanları boş bırakılamaz!")
+                QMessageBox.warning(self, "Uyarı", "Hayvan adı ve sahip adı alanları boş bırakılamaz!")
                 return
 
             durum_bilgisi = self.durum_takip.get_durum()
 
-            data = {
-                'hayvan_adi': self.form_elements['ad_input'].text(),
-                'sahip_adi': self.form_elements['sahip_input'].text(),
-                'tur': self.form_elements['tur_combo'].currentText(),
-                'cinsiyet': "Erkek" if self.form_elements['erkek_radio'].isChecked() else "Dişi",
-                'yas': self.form_elements['yas_spinbox'].value(),
-                'durum': durum_bilgisi['durum'],
-                'ilerleme': durum_bilgisi['ilerleme'],
-                'aciklama': self.form_elements['aciklama_text'].toPlainText(),
-                'ilaclar': ", ".join([item.text() for item in self.ilac_listesi.selectedItems()]),
-                'ekleyen_id': self.user_data['user_id']
-            }
+            # Açıklama metnini düzenle
+            aciklama = self.form_elements['aciklama_text'].toPlainText()
+            if not aciklama:  # Açıklama boşsa
+                aciklama = "Hasta için henüz bir açıklama girilmedi."
+
+            data = {'hayvan_adi': self.form_elements['ad_input'].text(), 'sahip_adi': self.form_elements['sahip_input'].text(), 'tur': self.form_elements['tur_combo'].currentText(),
+                'cinsiyet': "Erkek" if self.form_elements['erkek_radio'].isChecked() else "Dişi", 'yas': self.form_elements['yas_spinbox'].value(), 'durum': durum_bilgisi['durum'], 'ilerleme': durum_bilgisi['ilerleme'],
+                # İlerleme değerini doğrudan al
+                'aciklama': aciklama, 'ilaclar': ", ".join([item.text() for item in self.ilac_listesi.selectedItems()]), 'ekleyen_id': self.user_data['user_id']}
 
             if self.db.add_patient(data):
                 self.clear_form()
                 self.refresh_data()
-                QMessageBox.information(
-                    self, "Başarılı", "Kayıt başarıyla eklendi!")
+                QMessageBox.information(self, "Başarılı", "Kayıt başarıyla eklendi!")
             else:
-                QMessageBox.critical(
-                    self, "Hata", "Kayıt eklenirken bir hata oluştu!")
+                QMessageBox.critical(self, "Hata", "Kayıt eklenirken bir hata oluştu!")
 
         except Exception as e:
-            QMessageBox.critical(
-                self, "Hata", f"Beklenmeyen bir hata oluştu: {str(e)}")
+            QMessageBox.critical(self, "Hata", f"Beklenmeyen bir hata oluştu: {str(e)}")
 
     def clear_form(self):
         """Form alanlarını temizler"""
@@ -163,10 +165,8 @@ class VeterinerApp(QMainWindow):
 
             # İstatistikleri güncelle
             stats = self.db.get_statistics()
-            total_label = self.stat_cards['total_patients'].findChild(
-                QLabel, "value_label")
-            success_label = self.stat_cards['treatment_success'].findChild(
-                QLabel, "value_label")
+            total_label = self.stat_cards['total_patients'].findChild(QLabel, "value_label")
+            success_label = self.stat_cards['treatment_success'].findChild(QLabel, "value_label")
 
             if total_label and success_label:
                 total_label.setText(str(stats['total']))
@@ -178,30 +178,24 @@ class VeterinerApp(QMainWindow):
     def delete_record(self):
         """Seçili kaydı siler"""
         if not self.user_data['yetkiler']['hasta_sil']:
-            QMessageBox.warning(self, "Yetkisiz İşlem",
-                                "Bu işlem için yetkiniz bulunmamaktadır!")
+            QMessageBox.warning(self, "Yetkisiz İşlem", "Bu işlem için yetkiniz bulunmamaktadır!")
             return
 
         try:
             current_row = self.rapor_table.currentRow()
             if current_row < 0:
-                QMessageBox.warning(
-                    self, "Uyarı", "Lütfen silinecek bir kayıt seçin!")
+                QMessageBox.warning(self, "Uyarı", "Lütfen silinecek bir kayıt seçin!")
                 return
 
             record_id = self.rapor_table.item(current_row, 0).text()
-            reply = QMessageBox.question(self, "Onay",
-                                         "Bu kaydı silmek istediğinizden emin misiniz?",
-                                         QMessageBox.Yes | QMessageBox.No)
+            reply = QMessageBox.question(self, "Onay", "Bu kaydı silmek istediğinizden emin misiniz?", QMessageBox.Yes | QMessageBox.No)
 
             if reply == QMessageBox.Yes:
                 if self.db.delete_patient(record_id):
                     self.refresh_data()
-                    QMessageBox.information(
-                        self, "Başarılı", "Kayıt başarıyla silindi!")
+                    QMessageBox.information(self, "Başarılı", "Kayıt başarıyla silindi!")
                 else:
-                    QMessageBox.critical(
-                        self, "Hata", "Kayıt silinirken bir hata oluştu!")
+                    QMessageBox.critical(self, "Hata", "Kayıt silinirken bir hata oluştu!")
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Kayıt silme hatası: {str(e)}")
 
@@ -212,10 +206,7 @@ class VeterinerApp(QMainWindow):
             for row in range(self.rapor_table.rowCount()):
                 column = self.search_combo.currentIndex() + 1
                 item = self.rapor_table.item(row, column)
-                self.rapor_table.setRowHidden(
-                    row,
-                    text not in item.text().lower() if item else True
-                )
+                self.rapor_table.setRowHidden(row, text not in item.text().lower() if item else True)
         except Exception as e:
             print(f"Filtreleme hatası: {e}")
 
@@ -232,14 +223,22 @@ class VeterinerApp(QMainWindow):
 
             new_value = item.text()
             record_id = self.rapor_table.item(row, 0).text()
-            column_names = ["id", "hayvan_adi", "sahip_adi",
-                            "tur", "cinsiyet", "yas", "durum", "aciklama"]
+            column_names = ["id",  # 0
+                "hayvan_adi",  # 1
+                "sahip_adi",  # 2
+                "tur",  # 3
+                "cinsiyet",  # 4
+                "yas",  # 5
+                "durum",  # 6
+                "ilerleme",  # 7
+                "aciklama",  # 8
+                "ilaclar"  # 9
+            ]
 
             if self.db.update_patient(record_id, column_names[col], new_value):
                 self.refresh_data()
             else:
-                QMessageBox.critical(
-                    self, "Hata", "Güncelleme yapılırken bir hata oluştu!")
+                QMessageBox.critical(self, "Hata", "Güncelleme yapılırken bir hata oluştu!")
                 self.refresh_data()
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Güncelleme hatası: {str(e)}")
