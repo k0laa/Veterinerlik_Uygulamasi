@@ -3,6 +3,8 @@ from pathlib import Path
 import hashlib
 import uuid
 
+from PyQt5.QtWidgets import QMessageBox
+
 
 class Database:
     def __init__(self):
@@ -109,9 +111,8 @@ class Database:
 
             # Role specific query if role_type is provided
             if role_type:
-                query = 'SELECT id, sifre_hash, tuz, rol FROM kullanicilar WHERE kullanici_adi = ? AND rol LIKE ?'
-                role_filter = {'doctor': 'doktor%', 'owner': 'hasta_sahibi%', 'secretary': 'asistan%'}.get(role_type, '%')
-                cursor.execute(query, (kullanici_adi, role_filter))
+                query = 'SELECT id, sifre_hash, tuz, rol FROM kullanicilar WHERE kullanici_adi = ? AND rol = ?'
+                cursor.execute(query, (kullanici_adi, role_type))
             else:
                 cursor.execute('SELECT id, sifre_hash, tuz, rol FROM kullanicilar WHERE kullanici_adi = ?', (kullanici_adi,))
 
@@ -125,8 +126,13 @@ class Database:
                     cursor.execute('UPDATE kullanicilar SET son_giris = CURRENT_TIMESTAMP WHERE id = ?', (user_id,))
                     conn.commit()
 
+                    # Get permissions for the role
                     cursor.execute('SELECT * FROM yetkiler WHERE rol = ?', (rol,))
                     yetkiler = cursor.fetchone()
+
+                    # If permissions not found, use default no-permissions
+                    if not yetkiler:
+                        yetkiler = (rol, 0, 0, 0, 0, 0)
 
                     conn.close()
                     return {'success': True, 'user_id': user_id, 'rol': rol, 'yetkiler': {'hasta_ekle': yetkiler[1], 'hasta_duzenle': yetkiler[2], 'hasta_sil': yetkiler[3], 'rapor_goruntule': yetkiler[4], 'kullanici_yonet': yetkiler[5]}}
@@ -136,7 +142,7 @@ class Database:
 
         except Exception as e:
             print(f"Login error: {e}")
-            return {'success': False, 'error': 'An error occurred during login'}
+            return {'success': False, 'error': f'An error occurred during login: {str(e)}'}
 
     def add_user(self, data, admin_id):
         """Yeni kullanıcı ekler"""
@@ -288,22 +294,22 @@ class Database:
             return False
 
     def migrate_database(self):
-                """Veritabanı şemasını günceller"""
-                try:
-                    conn = sqlite3.connect(str(self.db_file))
-                    cursor = conn.cursor()
+        """Veritabanı şemasını günceller"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
 
-                    # Mevcut sütunları kontrol et
-                    cursor.execute("PRAGMA table_info(hastalar)")
-                    columns = [column[1] for column in cursor.fetchall()]
+            # Mevcut sütunları kontrol et
+            cursor.execute("PRAGMA table_info(hastalar)")
+            columns = [column[1] for column in cursor.fetchall()]
 
-                    # 'sikayet' sütunu yoksa ekle
-                    if 'sikayet' not in columns:
-                        cursor.execute('ALTER TABLE hastalar ADD COLUMN sikayet TEXT DEFAULT NULL')
-                        print("'sikayet' sütunu eklendi")
+            # 'sikayet' sütunu yoksa ekle
+            if 'sikayet' not in columns:
+                cursor.execute('ALTER TABLE hastalar ADD COLUMN sikayet TEXT DEFAULT NULL')
+                print("'sikayet' sütunu eklendi")
 
-                    # Randevular tablosunu ekle
-                    cursor.execute('''
+            # Randevular tablosunu ekle
+            cursor.execute('''
                         CREATE TABLE IF NOT EXISTS randevular (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             hasta_id INTEGER NOT NULL,
@@ -316,10 +322,10 @@ class Database:
                         )
                     ''')
 
-                    conn.commit()
-                    conn.close()
-                except Exception as e:
-                    print(f"Migrasyon hatası: {e}")
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"Migrasyon hatası: {e}")
 
     def get_waiting_patients(self):
         """Muayene bekleyen hastaları getirir"""
@@ -393,3 +399,51 @@ class Database:
         except Exception as e:
             print(f"Muayeneye alma hatası: {e}")
             return None
+
+    def register_user(self, data):
+        """Yeni kullanıcı kaydeder"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            # Kullanıcı adı veya TC kimlik kontrolü
+            cursor.execute('SELECT COUNT(*) FROM kullanicilar WHERE kullanici_adi = ?', (data['kullanici_adi'],))
+            if cursor.fetchone()[0] > 0:
+                conn.close()
+                QMessageBox.warning(None, "Kayıt Hatası", "Bu kullanıcı adı zaten kullanılıyor!")
+                return False
+
+            # TC kimlik kontrolü
+            if 'tc_kimlik' in data:
+                # Önce tc_kimlik sütunu var mı kontrol et
+                cursor.execute("PRAGMA table_info(kullanicilar)")
+                columns = [column[1] for column in cursor.fetchall()]
+
+                if 'tc_kimlik' not in columns:
+                    cursor.execute('ALTER TABLE kullanicilar ADD COLUMN tc_kimlik TEXT')
+                    cursor.execute('ALTER TABLE kullanicilar ADD COLUMN telefon TEXT')
+
+                cursor.execute('SELECT COUNT(*) FROM kullanicilar WHERE tc_kimlik = ?', (data['tc_kimlik'],))
+                if cursor.fetchone()[0] > 0:
+                    conn.close()
+                    QMessageBox.warning(None, "Kayıt Hatası", "Bu TC kimlik numarası ile kayıtlı bir kullanıcı bulunmaktadır!")
+                    return False
+
+            # Şifre hashleme
+            tuz = uuid.uuid4().hex
+            sifre_hash = hashlib.sha256((data['sifre'] + tuz).encode()).hexdigest()
+
+            # Kullanıcıyı ekle
+            cursor.execute('''
+                INSERT INTO kullanicilar (
+                    kullanici_adi, sifre_hash, tuz, rol, ad_soyad, email, tc_kimlik, telefon
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (data['kullanici_adi'], sifre_hash, tuz, data['rol'], data['ad_soyad'], data.get('email', ''), data.get('tc_kimlik', ''), data.get('telefon', '')))
+
+            conn.commit()
+            conn.close()
+            return True
+
+        except Exception as e:
+            print(f"Kullanıcı kayıt hatası: {e}")
+            return False

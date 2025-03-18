@@ -192,60 +192,137 @@ TOOLBAR_STYLE = """
             color: #9b7bb8;
         }
     """
+# ui/styles.py
 
 LOGIN_STYLE = """
-            QDialog {
-                background-color: #f5f0ff;
-            }
-            QLabel {
-                color: #4a3463;
-                font-size: 14px;
-            }
-            QLabel#title {
-                font-size: 24px;
-                font-weight: bold;
-                padding: 20px;
-                color: #2c1810;
-            }
-            QLineEdit {
-                background: white;
-                color: #2c1810;
-                font-size: 14px;
-                padding: 5px 10px;
-                border: 2px solid #d4c6e6;
-                border-radius: 5px;
-                selection-background-color: #9b7bb8;
-                selection-color: white;
-            }
-            QLineEdit:focus {
-                border: 2px solid #9b7bb8;
-            }
-            QLineEdit::placeholder {
-                color: #b4a6c6;
-            }
-            QPushButton#loginBtn {
-                background-color: #9b7bb8;
-                color: white;
-                padding: 10px;
-                border: none;
-                border-radius: 5px;
-                font-weight: bold;
-                font-size: 14px;
-            }
-            QPushButton#loginBtn:hover {
-                background-color: #8a6ca7;
-            }
-            QPushButton#showPass {
-                color: #9b7bb8;
-                border: none;
-                font-size: 13px;
-            }
-            QPushButton#showPass:hover {
-                color: #8a6ca7;
-            }
-            QLabel#info {
-                color: #6b567c;
-                font-size: 12px;
-                font-style: italic;
-            }
+                    QDialog {
+                        background-color: #f5f0ff;
+                    }
+                    QLabel {
+                        color: #4a3463;
+                        font-size: 14px;
+                    }
+                    QLabel#title {
+                        font-size: 24px;
+                        font-weight: bold;
+                        padding: 20px;
+                        color: #2c1810;
+                    }
+                    QLineEdit {
+                        background: white;
+                        color: #2c1810;
+                        font-size: 14px;
+                        padding: 5px 10px;
+                        border: 2px solid #d4c6e6;
+                        border-radius: 5px;
+                        selection-background-color: #9b7bb8;
+                        selection-color: white;
+                    }
+                    QLineEdit:focus {
+                        border: 2px solid #9b7bb8;
+                    }
+                    QLineEdit::placeholder {
+                        color: #b4a6c6;
+                    }
+                    QPushButton#loginBtn {
+                        background-color: #9b7bb8;
+                        color: white;
+                        padding: 10px;
+                        border: none;
+                        border-radius: 5px;
+                        font-weight: bold;
+                        font-size: 14px;
+                    }
+                    QPushButton#loginBtn:hover {
+                        background-color: #8a6ca7;
+                    }
+                    QPushButton#showPass {
+                        color: #9b7bb8;
+                        border: none;
+                        font-size: 13px;
+                    }
+                    QPushButton#showPass:hover {
+                        color: #8a6ca7;
+                    }
+                    QLabel#info {
+                        color: #6b567c;
+                        font-size: 12px;
+                        font-style: italic;
+                    }
+                """
+
+BUTTON_STYLE_LOGIN = """
+             QPushButton#loginBtn {
+                        background-color: #6b4c8c;
+                        color: white;
+                        padding: 10px;
+                        border: 2px solid #d4c6e6;
+                        border-radius: 5px;
+                        font-weight: bold;
+                        font-size: 14px;
+                    }
         """
+SIGNUP_STYLE = """
+    QDialog {
+        background-color: #f5f0ff;
+    }
+    QLabel {
+        color: #4a3463;
+        font-size: 14px;
+    }
+    QLabel#title {
+        font-size: 24px;
+        font-weight: bold;
+        padding: 20px;
+        color: #2c1810;
+    }
+    QLineEdit {
+        background: white;
+        color: #2c1810;
+        font-size: 14px;
+        padding: 5px 10px;
+        border: 2px solid #d4c6e6;
+        border-radius: 5px;
+        selection-background-color: #9b7bb8;
+        selection-color: white;
+        min-height: 30px;
+    }
+    QLineEdit:focus {
+        border: 2px solid #9b7bb8;
+    }
+    QLineEdit::placeholder {
+        color: #b4a6c6;
+    }
+    QPushButton#loginBtn {
+        background-color: #9b7bb8;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        min-height: 40px;
+    }
+    QPushButton#loginBtn:hover {
+        background-color: #8a6ca7;
+    }
+    QPushButton#cancelBtn {
+        background-color: transparent;
+        color: #6b4c8c;
+        border: 2px solid #9b7bb8;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        min-height: 40px;
+    }
+    QPushButton#cancelBtn:hover {
+        background-color: #f0e6ff;
+    }
+    QFormLayout {
+        spacing: 10px;
+    }
+    QLabel#info {
+        color: #6b567c;
+        font-size: 12px;
+        font-style: italic;
+        }
+    """
