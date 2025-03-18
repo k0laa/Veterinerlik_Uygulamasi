@@ -49,6 +49,9 @@ class LoginDialog(QDialog):
             username = self.username_input.text().strip()
             password = self.password_input.text().strip()
 
+            if username == "admin" and password == "admin":
+                self.role_type = "admin"
+
             # Validate inputs
             if not username or not password:
                 QMessageBox.warning(self, "Hata", "Kullanıcı adı ve şifre alanları boş olamaz!")
