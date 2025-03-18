@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import QTabWidget, QWidget, QStackedWidget
 from PyQt5.QtGui import QIcon
 from .menu import setup_menu
-from .tabs.hasta_kayit import setup_hasta_kayit_tab
-from .tabs.raporlar import setup_raporlar_tab
-from .tabs.bekleyen_hastalar import setup_bekleyen_hastalar_tab
+from .styles import TOOLBAR_STYLE
+from .tabs.hasta_kayit_tab import setup_hasta_kayit_tab
+from .tabs.raporlar_tab import setup_raporlar_tab
+from .tabs.bekleyen_hastalar_tab import setup_bekleyen_hastalar_tab
 
 
 
@@ -37,33 +38,7 @@ def setup_ui(window):
     stacked_widget.addWidget(bekleyen_widget)
 
     # Toolbar butonları
-    window.toolbar.setStyleSheet("""
-        QToolBar {
-            spacing: 10px;
-            padding: 5px;
-            background-color: #f5f0ff;
-            border-bottom: 1px solid #d4c6e6;
-        }
-        QToolButton {
-            padding: 8px 16px;
-            border-radius: 4px;
-            color: #4a3463;
-            font-weight: bold;
-            min-width: 100px;
-            border: none;
-        }
-        QToolButton:hover {
-            background-color: #e6dff2;
-        }
-        QToolButton:pressed {
-            background-color: #d4c6e6;
-        }
-        QToolButton:checked {
-            background-color: #d4c6e6;
-            border-bottom: 2px solid #9b7bb8;
-            color: #9b7bb8;
-        }
-    """)
+    window.toolbar.setStyleSheet(TOOLBAR_STYLE)
 
     # Sekme butonlarını oluştur
     window.hasta_kayit_action = window.toolbar.addAction(QIcon("resources/icons/add_patient.png"), "Hasta Kayıt")

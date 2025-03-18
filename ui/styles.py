@@ -164,3 +164,88 @@ PROGRESS_STYLE = """
         background-color: #9b7bb8;
     }
 """
+
+TOOLBAR_STYLE = """
+        QToolBar {
+            spacing: 10px;
+            padding: 5px;
+            background-color: #f5f0ff;
+            border-bottom: 1px solid #d4c6e6;
+        }
+        QToolButton {
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: #4a3463;
+            font-weight: bold;
+            min-width: 100px;
+            border: none;
+        }
+        QToolButton:hover {
+            background-color: #e6dff2;
+        }
+        QToolButton:pressed {
+            background-color: #d4c6e6;
+        }
+        QToolButton:checked {
+            background-color: #d4c6e6;
+            border-bottom: 2px solid #9b7bb8;
+            color: #9b7bb8;
+        }
+    """
+
+LOGIN_STYLE = """
+            QDialog {
+                background-color: #f5f0ff;
+            }
+            QLabel {
+                color: #4a3463;
+                font-size: 14px;
+            }
+            QLabel#title {
+                font-size: 24px;
+                font-weight: bold;
+                padding: 20px;
+                color: #2c1810;
+            }
+            QLineEdit {
+                background: white;
+                color: #2c1810;
+                font-size: 14px;
+                padding: 5px 10px;
+                border: 2px solid #d4c6e6;
+                border-radius: 5px;
+                selection-background-color: #9b7bb8;
+                selection-color: white;
+            }
+            QLineEdit:focus {
+                border: 2px solid #9b7bb8;
+            }
+            QLineEdit::placeholder {
+                color: #b4a6c6;
+            }
+            QPushButton#loginBtn {
+                background-color: #9b7bb8;
+                color: white;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                font-weight: bold;
+                font-size: 14px;
+            }
+            QPushButton#loginBtn:hover {
+                background-color: #8a6ca7;
+            }
+            QPushButton#showPass {
+                color: #9b7bb8;
+                border: none;
+                font-size: 13px;
+            }
+            QPushButton#showPass:hover {
+                color: #8a6ca7;
+            }
+            QLabel#info {
+                color: #6b567c;
+                font-size: 12px;
+                font-style: italic;
+            }
+        """

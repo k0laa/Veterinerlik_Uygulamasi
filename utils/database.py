@@ -66,45 +66,55 @@ class Database:
         # Varsayılan yetkileri ekle
         cursor.execute('''INSERT OR IGNORE INTO yetkiler VALUES 
             ('admin', 1, 1, 1, 1, 1),
-            ('doktor', 1, 1, 0, 1, 0),
-            ('asistan', 0, 0, 0, 1, 0)
+            ('doktor', 1, 1, 1, 1, 0),
+            ('asistan', 1, 0, 0, 1, 0),
+            ('hasta_sahibi', 0, 0, 0, 0, 0)
         ''')
 
         conn.commit()
         conn.close()
 
     def create_default_admin(self):
-        """Varsayılan admin kullanıcısını oluşturur"""
+        """Create default admin user if not exists"""
         try:
             conn = sqlite3.connect(str(self.db_file))
             cursor = conn.cursor()
 
-            # Önce mevcut admin kullanıcısını sil
-            cursor.execute('DELETE FROM kullanicilar WHERE kullanici_adi = ?', ('admin',))
-            conn.commit()
+            # Check if admin already exists
+            cursor.execute('SELECT COUNT(*) FROM kullanicilar WHERE kullanici_adi = ?', ('admin',))
+            if cursor.fetchone()[0] > 0:
+                conn.close()
+                return  # Admin already exists, don't recreate
 
-            # Yeni admin kullanıcısını oluştur
+            # Create admin user
             tuz = uuid.uuid4().hex
-            sifre = "123"
+            sifre = "admin"
             sifre_hash = hashlib.sha256((sifre + tuz).encode()).hexdigest()
 
             cursor.execute('''
                 INSERT INTO kullanicilar (kullanici_adi, sifre_hash, tuz, rol, ad_soyad, email)
                 VALUES (?, ?, ?, ?, ?, ?)
-            ''', ('123', sifre_hash, tuz, 'admin', 'Sistem Yöneticisi', 'admin@veteriner.com'))
+            ''', ('admin', sifre_hash, tuz, 'admin', 'Sistem Yöneticisi', 'admin@veteriner.com'))
 
             conn.commit()
             conn.close()
         except Exception as e:
             print(f"Admin oluşturma hatası: {e}")
 
-    def login(self, kullanici_adi, sifre):
-        """Kullanıcı girişi yapar"""
+    def login(self, kullanici_adi, sifre, role_type=None):
+        """User login"""
         try:
             conn = sqlite3.connect(str(self.db_file))
             cursor = conn.cursor()
 
-            cursor.execute('SELECT id, sifre_hash, tuz, rol FROM kullanicilar WHERE kullanici_adi = ?', (kullanici_adi,))
+            # Role specific query if role_type is provided
+            if role_type:
+                query = 'SELECT id, sifre_hash, tuz, rol FROM kullanicilar WHERE kullanici_adi = ? AND rol LIKE ?'
+                role_filter = {'doctor': 'doktor%', 'owner': 'hasta_sahibi%', 'secretary': 'asistan%'}.get(role_type, '%')
+                cursor.execute(query, (kullanici_adi, role_filter))
+            else:
+                cursor.execute('SELECT id, sifre_hash, tuz, rol FROM kullanicilar WHERE kullanici_adi = ?', (kullanici_adi,))
+
             user = cursor.fetchone()
 
             if user:
@@ -112,11 +122,9 @@ class Database:
                 sifre_hash = hashlib.sha256((sifre + tuz).encode()).hexdigest()
 
                 if sifre_hash == stored_hash:
-                    # Son giriş tarihini güncelle
                     cursor.execute('UPDATE kullanicilar SET son_giris = CURRENT_TIMESTAMP WHERE id = ?', (user_id,))
                     conn.commit()
 
-                    # Yetkileri al
                     cursor.execute('SELECT * FROM yetkiler WHERE rol = ?', (rol,))
                     yetkiler = cursor.fetchone()
 
@@ -124,11 +132,11 @@ class Database:
                     return {'success': True, 'user_id': user_id, 'rol': rol, 'yetkiler': {'hasta_ekle': yetkiler[1], 'hasta_duzenle': yetkiler[2], 'hasta_sil': yetkiler[3], 'rapor_goruntule': yetkiler[4], 'kullanici_yonet': yetkiler[5]}}
 
             conn.close()
-            return {'success': False, 'error': 'Geçersiz kullanıcı adı veya şifre'}
+            return {'success': False, 'error': 'Invalid username or password'}
 
         except Exception as e:
-            print(f"Giriş hatası: {e}")
-            return {'success': False, 'error': 'Giriş işlemi sırasında bir hata oluştu'}
+            print(f"Login error: {e}")
+            return {'success': False, 'error': 'An error occurred during login'}
 
     def add_user(self, data, admin_id):
         """Yeni kullanıcı ekler"""
@@ -280,25 +288,38 @@ class Database:
             return False
 
     def migrate_database(self):
-        """Veritabanı şemasını günceller"""
-        try:
-            conn = sqlite3.connect(str(self.db_file))
-            cursor = conn.cursor()
+                """Veritabanı şemasını günceller"""
+                try:
+                    conn = sqlite3.connect(str(self.db_file))
+                    cursor = conn.cursor()
 
-            # Mevcut sütunları kontrol et
-            cursor.execute("PRAGMA table_info(hastalar)")
-            columns = [column[1] for column in cursor.fetchall()]
+                    # Mevcut sütunları kontrol et
+                    cursor.execute("PRAGMA table_info(hastalar)")
+                    columns = [column[1] for column in cursor.fetchall()]
 
-            # 'cins' sütunu yoksa ekle
-            if 'sikayet' not in columns:
-                cursor.execute('ALTER TABLE hastalar ADD COLUMN sikayet TEXT')
-                print("'sikayet' sütunu eklendi")
+                    # 'sikayet' sütunu yoksa ekle
+                    if 'sikayet' not in columns:
+                        cursor.execute('ALTER TABLE hastalar ADD COLUMN sikayet TEXT DEFAULT NULL')
+                        print("'sikayet' sütunu eklendi")
 
-            conn.commit()
-            conn.close()
+                    # Randevular tablosunu ekle
+                    cursor.execute('''
+                        CREATE TABLE IF NOT EXISTS randevular (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            hasta_id INTEGER NOT NULL,
+                            tarih TEXT NOT NULL,
+                            saat TEXT NOT NULL,
+                            tip TEXT NOT NULL,
+                            notlar TEXT DEFAULT NULL,
+                            durum TEXT DEFAULT 'Bekliyor',
+                            FOREIGN KEY (hasta_id) REFERENCES hastalar(id)
+                        )
+                    ''')
 
-        except Exception as e:
-            print(f"Migrasyon hatası: {e}")
+                    conn.commit()
+                    conn.close()
+                except Exception as e:
+                    print(f"Migrasyon hatası: {e}")
 
     def get_waiting_patients(self):
         """Muayene bekleyen hastaları getirir"""

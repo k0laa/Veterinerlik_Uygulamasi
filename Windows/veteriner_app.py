@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QTableWidgetItem, QToolBar, QLabel, QTableWidget, QScrollArea, QWidget, QVBoxLayout)
 from PyQt5.QtCore import Qt
 from ui.main_window import setup_ui
-from ui.login_dialog import LoginDialog
 from utils.database import Database
-from ui.styles import MAIN_STYLE
-from ui.tabs.bekleyen_hastalar import HastaKartiWidget
+from ui.styles import MAIN_STYLE, TOOLBAR_STYLE
+from ui.tabs.bekleyen_hastalar_tab import HastaKartiWidget
 import sys
+from .login_window import LoginDialog
 
 
 class VeterinerApp(QMainWindow):
@@ -38,21 +38,6 @@ class VeterinerApp(QMainWindow):
         # Toolbar oluştur
         self.toolbar = QToolBar()
         self.toolbar.setMovable(False)
-        self.toolbar.setStyleSheet("""
-            QToolBar {
-                spacing: 10px;
-                padding: 5px;
-                background-color: #f5f0ff;
-                border-bottom: 1px solid #d4c6e6;
-            }
-            QToolButton {
-                padding: 5px;
-                border-radius: 4px;
-            }
-            QToolButton:hover {
-                background-color: #e6dff2;
-            }
-        """)
         self.addToolBar(self.toolbar)
 
         setup_ui(self)
@@ -483,3 +468,34 @@ class VeterinerApp(QMainWindow):
         # Scroll alanına içerik widget'ını ekle
         scroll.setWidget(content_widget)
         layout.addWidget(scroll)
+
+    # Add these methods to the VeterinerApp class in veteriner_app.py
+
+    def add_appointment(self):
+        """Randevu ekler"""
+        try:
+            # Form verilerini al
+            hasta_index = self.randevu_elements['hasta_combo'].currentIndex()
+            hasta_id = self.randevu_elements['hasta_combo'].itemData(hasta_index)
+            tarih = self.randevu_elements['tarih'].date().toString("yyyy-MM-dd")
+            saat = self.randevu_elements['saat'].time().toString("HH:mm")
+            tip = self.randevu_elements['tip'].currentText()
+            notlar = self.randevu_elements['not'].text()
+
+            # Hasta seçilip seçilmediğini kontrol et
+            if hasta_id is None:
+                QMessageBox.warning(self, "Uyarı", "Lütfen bir hasta seçin!")
+                return
+
+            data = {'hasta_id': hasta_id, 'tarih': tarih, 'saat': saat, 'tip': tip, 'not': notlar, 'durum': 'Bekliyor'}
+
+            # Veritabanına kaydet ve tabloyu güncelle
+            if self.db.add_appointment(data):
+                self.clear_appointment_form()
+                self.load_appointments()
+                QMessageBox.information(self, "Başarılı", "Randevu başarıyla eklendi!")
+            else:
+                QMessageBox.critical(self, "Hata", "Randevu eklenirken bir hata oluştu!")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Hata", f"Randevu eklerken bir hata oluştu: {str(e)}")

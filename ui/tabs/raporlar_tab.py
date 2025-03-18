@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QLineEdit, QComboBox, QTableWidget, QTableWidgetItem, QPushButton, QLabel)
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QLineEdit, QComboBox, QTableWidget, QPushButton, QLabel)
 from ..widgets.statistics import create_statistics
 from ..styles import INPUT_STYLE, BUTTON_STYLE, TABLE_STYLE
 
