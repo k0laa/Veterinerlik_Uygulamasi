@@ -1,25 +1,61 @@
-# Veterinerlik_Uygulamasi
+# Veteriner Takip Sistemi
 
-## Projenin Amacı
-Veterinerlik uygulaması, veteriner hekimlerin ve veteriner kliniklerin işlerini kolaylaştırmak amacıyla geliştirilmiş bir uygulamadır. Bu uygulama sayesinde veteriner hekimler, kliniklerindeki hastaların bilgilerini ve randevularını kolayca takip edebileceklerdir. Ayrıca, veteriner hekimler, kliniklerindeki ilaç ve aşı stoklarını da bu uygulama üzerinden takip edebileceklerdir.
+Veteriner Takip Sistemi, veteriner klinikleri için hasta kayıt, randevu yönetimi ve raporlama işlemlerini kolaylaştıran bir uygulamadır.
 
-## Projenin Özellikleri
-Veterinerlik uygulaması, aşağıdaki özelliklere sahip olacaktır:
+## Özellikler
 
-   - Hasta Ekleme
-   - Hasta Silme
-   - Hasta Güncelleme
-   - Hasta Listeleme
-   - Randevu Ekleme
-   - Randevu Silme
-   - Randevu Güncelleme
-   - Randevu Listeleme
-   - İlaç Ekleme
-   - İlaç Silme
-   - İlaç Güncelleme
-   - İlaç Listeleme
-   - Aşı Ekleme
-   - Aşı Silme
-   - Aşı Güncelleme
-   - Aşı Listeleme
+- Hasta kayıt ve yönetimi
+- Randevu oluşturma ve takip
+- Kullanıcı yetkilendirme ve yönetimi
+- Raporlama ve istatistikler
 
+## Kurulum
+
+### Gereksinimler
+
+- Python 3.8+
+- PyQt5
+- SQLite3
+
+### Adımlar
+
+1. Depoyu klonlayın:
+
+    ```bash
+    git clone https://github.com/k0laa/veteriner-takip-sistemi.git
+    cd veteriner-takip-sistemi
+    ```
+
+2. Gerekli Python paketlerini yükleyin:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3. Veritabanını oluşturun ve gerekli tabloları ekleyin:
+
+    ```bash
+    python -c "from utils.database import Database; Database()"
+    ```
+
+4. Uygulamayı başlatın:
+
+    ```bash
+    python main.py
+    ```
+
+## Kullanım
+
+1. Uygulamayı başlattıktan sonra giriş ekranı gelecektir.
+2. Varsayılan yönetici hesabı ile giriş yapabilirsiniz:
+    - Kullanıcı Adı: `admin`
+    - Şifre: `admin`
+3. Giriş yaptıktan sonra hasta kayıt, randevu ve raporlama işlemlerini gerçekleştirebilirsiniz.
+
+## Katkıda Bulunma
+
+Katkıda bulunmak için lütfen bir `fork` oluşturun, değişikliklerinizi yapın ve bir `pull request` gönderin.
+
+## Lisans
+
+Bu proje MIT Lisansı ile lisanslanmıştır. Daha fazla bilgi için `LICENSE` dosyasına bakın.
