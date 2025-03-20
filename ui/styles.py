@@ -78,6 +78,20 @@ GROUP_STYLE = """
     }
 """
 
+ACIL_STYLE = """
+    QWidget {
+        background-color: #ffcccc;
+        border: 2px solid #ff9999;
+        border-radius: 4px;
+        margin-top: 8px;
+        padding: 12px;
+    }
+    QLabel {
+        background-color: transparent;
+        color: #cc0000;
+    }
+"""
+
 LIST_STYLE = """
     QListWidget {
         border: 1px solid #e6dff2;
@@ -192,7 +206,6 @@ TOOLBAR_STYLE = """
             color: #9b7bb8;
         }
     """
-# ui/styles.py
 
 LOGIN_STYLE = """
                     QDialog {

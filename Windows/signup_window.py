@@ -1,15 +1,19 @@
-from PyQt5.QtWidgets import (QDialog, QMessageBox, QLineEdit)
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, QLineEdit
 from utils.database import Database
 from ui.singup_window_ui import setup_ui
 
 
-class SignupDialog(QDialog):
+class SignupWindow(QMainWindow):
     def __init__(self, db: Database):
         super().__init__()
         self.db = db
+        self.registration_successful = False  # Kayıt durumunu takip et
+
         self.setup_ui()
 
     def setup_ui(self):
+
+
         setup_ui(self)
 
     def register_user(self):
@@ -20,14 +24,18 @@ class SignupDialog(QDialog):
                 return
 
             # Form verilerini al
-            data = {'ad_soyad': f"{self.first_name.text().strip()} {self.last_name.text().strip()}", 'tc_kimlik': self.tc_id.text().strip(), 'email': self.email.text().strip(), 'telefon': self.phone.text().strip(),
-                    'kullanici_adi': self.username.text().strip(), 'sifre': self.password.text(), 'rol': 'owner'  # Default role for new users
-                    }
+            data = {'ad_soyad': f"{self.first_name.text().strip()} " f"{self.last_name.text().strip()}",
+                    'tc_kimlik': self.tc_id.text().strip(),
+                    'email': self.email.text().strip(),
+                    'telefon': self.phone.text().strip(),
+                    'kullanici_adi': self.username.text().strip(),
+                    'sifre': self.password.text(), 'rol': 'owner'}
 
             # Veritabanına kaydet
             if self.db.register_user(data):
                 QMessageBox.information(self, "Başarılı", "Kayıt işlemi başarıyla tamamlandı!")
-                self.accept()
+                self.registration_successful = True  # Kayıt başarılı olduğunu işaretle
+                self.close()
             else:
                 QMessageBox.warning(self, "Hata", "Kayıt işlemi sırasında bir hata oluştu.")
 
@@ -48,7 +56,7 @@ class SignupDialog(QDialog):
         if not self.password_confirm.text(): empty_fields.append("Şifre Tekrar")
 
         if empty_fields:
-            QMessageBox.warning(self, "Eksik Bilgi", f"Lütfen aşağıdaki alanları doldurun:\n• {'\n• '.join(empty_fields)}")
+            QMessageBox.warning(self, "Eksik Bilgi", "Lütfen aşağıdaki alanları doldurun:\n• " + "\n• ".join(empty_fields))
             return False
 
         # TC Kimlik kontrolü
@@ -83,13 +91,19 @@ class SignupDialog(QDialog):
         from ui.styles import SIGNUP_STYLE
         return SIGNUP_STYLE
 
-    def toggle_password_visibility(self):
-            """Şifre görünürlüğünü değiştirir."""
-            if self.password.echoMode() == QLineEdit.Password:
-                self.password.setEchoMode(QLineEdit.Normal)
-                self.password_confirm.setEchoMode(QLineEdit.Normal)
-                self.show_password_button.setText("Şifreyi Gizle")
-            else:
-                self.password.setEchoMode(QLineEdit.Password)
-                self.password_confirm.setEchoMode(QLineEdit.Password)
-                self.show_password_button.setText("Şifreyi Göster")
+    def toggle_password(self):
+        """Şifre görünürlüğünü değiştirir."""
+        if  self.password.echoMode() == QLineEdit.Password:
+            self.password.setEchoMode(QLineEdit.Normal)
+            self.password_confirm.setEchoMode(QLineEdit.Normal)
+            self.show_password_button.setText("Şifreyi Gizle")
+        else:
+            self.password.setEchoMode(QLineEdit.Password)
+            self.password_confirm.setEchoMode(QLineEdit.Password)
+            self.show_password_button.setText("Şifreyi Göster")
+
+    def accept(self):
+        self.close()
+
+    def reject(self):
+        self.close()

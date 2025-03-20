@@ -1,35 +1,22 @@
-from PyQt5.QtWidgets import (QDialog, QMessageBox, QLineEdit)
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QLineEdit,)
 from utils.database import Database
 from ui.login_window_ui import setup_ui
 from ui.styles import LOGIN_STYLE, BUTTON_STYLE_LOGIN
 
 
-class LoginDialog(QDialog):
+class LoginWindow(QMainWindow):
     def __init__(self, db: Database):
         super().__init__()
         self.db = db
         self.user_data = None
         self.role_type = None
         self.selected_button = None  # Keep track of the selected button
+
+
         self.setup_ui()
 
     def setup_ui(self):
-        """Login dialog arayüzünü oluşturur"""
-        self.setWindowTitle("Veteriner Takip Sistemi - Giriş")
-        self.setFixedSize(500, 400)
-        self.setStyleSheet(LOGIN_STYLE)
-        self.setWindowIcon(QIcon("resources/icons/app_icon.png"))
-
         setup_ui(self)
-
-        self.signup_button.clicked.connect(self.show_signup)
-
-        # Connect button signals to a single handler
-        self.doctor_button.clicked.connect(lambda: self.set_role_type("doctor", self.doctor_button))
-        self.secretary_button.clicked.connect(lambda: self.set_role_type("secretary", self.secretary_button))
-        self.patient_button.clicked.connect(lambda: self.set_role_type("owner", self.patient_button))
-        self.login_button.clicked.connect(self.login)
 
     def set_role_type(self, role_type, button):
         """Sets the role type based on the button clicked."""
@@ -49,13 +36,16 @@ class LoginDialog(QDialog):
             username = self.username_input.text().strip()
             password = self.password_input.text().strip()
 
-            if username == "admin" and password == "admin":
-                self.role_type = "admin"
-
             # Validate inputs
             if not username or not password:
                 QMessageBox.warning(self, "Hata", "Kullanıcı adı ve şifre alanları boş olamaz!")
                 return
+
+            if username == "admin" and password == "admin":
+                self.role_type = "admin"
+
+            if username == "123" and password == "123":
+                self.role_type = "admin"
 
             # Perform login with proper role type
             result = self.db.login(username, password, self.role_type)
@@ -64,14 +54,10 @@ class LoginDialog(QDialog):
                 self.user_data = result
                 self.accept()
             else:
-                QMessageBox.warning(self, "Giriş Başarısız", "Kullanıcı adı veya şifre hatalı!")
+                QMessageBox.warning(self, "Giriş Başarısız", "Kullanıcı adı veya şifre hatalı! \n Giriş türünü kontrol edin")
 
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Giriş sırasında bir hata oluştu: {str(e)}")
-
-    def get_user_data(self):
-        """Kullanıcı verilerini döndürür"""
-        return self.user_data
 
     def toggle_password(self):
         try:
@@ -86,23 +72,24 @@ class LoginDialog(QDialog):
             QMessageBox.critical(self, "Hata", f"Giriş sırasında bir hata oluştu: {str(e)}")
 
     def show_signup(self):
-        """Kayıt ol formunu gösterir"""
+        """Opens the signup window"""
         try:
-            from Windows.signup_window import SignupDialog
-            signup_dialog = SignupDialog(self.db)
-            if signup_dialog.exec_() == SignupDialog.Accepted:
-                QMessageBox.information(self, "Kayıt Başarılı", "Kayıt işlemi başarıyla tamamlandı. Kullanıcı adı ve şifreniz ile giriş yapabilirsiniz.")
+            from Windows.signup_window import SignupWindow
+            self.signup_window = SignupWindow(self.db)  # Instance'ı sınıf değişkeni olarak sakla
+            self.signup_window.show()
+
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Kayıt formunu açarken bir hata oluştu: {str(e)}")
 
-    def show_signup(self):
-        """Opens the signup dialog"""
+    def accept(self):
         try:
-            from Windows.signup_window import SignupDialog
-            signup_dialog = SignupDialog(self.db)
-            result = signup_dialog.exec_()
 
-            if result == SignupDialog.Accepted:
-                QMessageBox.information(self, "Kayıt Başarılı", "Kaydınız başarıyla oluşturuldu. Şimdi giriş yapabilirsiniz.")
+            from Windows.doctor_main_window import DoctorWindow
+            self.doctor_window = DoctorWindow(self.db, self.user_data)
+
+            self.close()
+
+            self.doctor_window.show()
+
         except Exception as e:
-            QMessageBox.critical(self, "Hata", f"Kayıt formunu açarken bir hata oluştu: {str(e)}")
+            QMessageBox.critical(self, "Hata", f"Uygulama pencerisi açılırken bir hata oluştu: {str(e)}")

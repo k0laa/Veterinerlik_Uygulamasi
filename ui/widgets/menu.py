@@ -1,5 +1,8 @@
+from os import close
+
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtGui import QIcon
+
 
 def setup_menu(window):
     """Menü çubuğunu oluşturur"""
@@ -13,12 +16,19 @@ def setup_menu(window):
             background-color: #e6dff2;
         }
     """)
-    
+
     # Dosya menüsü
     file_menu = menu_bar.addMenu("Dosya")
-    
+
     # Çıkış aksiyonu
-    exit_action = QAction(QIcon("resources/icons/exit.png"), "Çıkış", window)
+    exit_action = QAction(QIcon("resources/icons/exit.png"), "Oturumu kapat", window)
     exit_action.setShortcut("Ctrl+Q")
-    exit_action.triggered.connect(window.close)
-    file_menu.addAction(exit_action) 
+    exit_action.triggered.connect(lambda: close(window))
+    file_menu.addAction(exit_action)
+
+
+def close(window):
+    window.close()
+    from Windows.login_window import LoginWindow
+    w = LoginWindow(window.database)
+    w.show()

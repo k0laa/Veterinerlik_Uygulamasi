@@ -1,8 +1,7 @@
-from PyQt5.QtWidgets import QTabWidget, QWidget, QStackedWidget
+from PyQt5.QtWidgets import QWidget, QStackedWidget
 from PyQt5.QtGui import QIcon
-from .menu import setup_menu
+from ui.widgets.menu import setup_menu
 from .styles import TOOLBAR_STYLE
-from .tabs.hasta_kayit_tab import setup_hasta_kayit_tab
 from .tabs.raporlar_tab import setup_raporlar_tab
 from .tabs.bekleyen_hastalar_tab import setup_bekleyen_hastalar_tab
 
@@ -23,9 +22,9 @@ def setup_ui(window):
     window.setCentralWidget(stacked_widget)
 
     # Hasta Kayıt sekmesi
-    hasta_kayit_widget = QWidget()
-    setup_hasta_kayit_tab(window, hasta_kayit_widget)
-    stacked_widget.addWidget(hasta_kayit_widget)
+    # hasta_kayit_widget = QWidget()
+    # setup_hasta_kayit_tab(window, hasta_kayit_widget)
+    # stacked_widget.addWidget(hasta_kayit_widget)
 
     # Raporlar sekmesi
     raporlar_widget = QWidget()
@@ -40,9 +39,9 @@ def setup_ui(window):
     # Toolbar butonları
     window.toolbar.setStyleSheet(TOOLBAR_STYLE)
 
-    # Sekme butonlarını oluştur
-    window.hasta_kayit_action = window.toolbar.addAction(QIcon("resources/icons/add_patient.png"), "Hasta Kayıt")
-    window.hasta_kayit_action.setCheckable(True)
+    # # Sekme butonlarını oluştur
+    # window.hasta_kayit_action = window.toolbar.addAction(QIcon("resources/icons/add_patient.png"), "Hasta Kayıt")
+    # window.hasta_kayit_action.setCheckable(True)
 
     window.raporlar_action = window.toolbar.addAction(QIcon("resources/icons/reports.png"), "Raporlar")
     window.raporlar_action.setCheckable(True)
@@ -52,14 +51,17 @@ def setup_ui(window):
 
     # Buton tıklama olaylarını bağla
     def switch_to_tab(index):
-        window.hasta_kayit_action.setChecked(index == 0)
-        window.raporlar_action.setChecked(index == 1)
-        window.bekleyen_action.setChecked(index == 2)
+        #window.hasta_kayit_action.setChecked(index == 0)
+        window.raporlar_action.setChecked(index == 0)
+        window.bekleyen_action.setChecked(index == 1)
         stacked_widget.setCurrentIndex(index)
 
-    window.hasta_kayit_action.triggered.connect(lambda: switch_to_tab(0))
-    window.raporlar_action.triggered.connect(lambda: switch_to_tab(1))
-    window.bekleyen_action.triggered.connect(lambda: switch_to_tab(2))
+
+    #window.hasta_kayit_action.triggered.connect(lambda: switch_to_tab(0))
+    window.raporlar_action.triggered.connect(lambda: switch_to_tab(0))
+    window.raporlar_action.triggered.connect(window.refresh_data)
+    window.bekleyen_action.triggered.connect(lambda: switch_to_tab(1))
+    window.bekleyen_action.triggered.connect(window.refresh_bekleyen_hastalar)
 
     # Stacked widget'ı window'a ekle
     window.stacked_widget = stacked_widget

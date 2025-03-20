@@ -1,14 +1,11 @@
 import sqlite3
-from pathlib import Path
 import hashlib
 import uuid
-
-from PyQt5.QtWidgets import QMessageBox
 
 
 class Database:
     def __init__(self):
-        self.db_file = Path("veteriner.db")
+        self.db_file = "veteriner.db"
         self.create_tables()
         self.migrate_database()
         self.create_default_admin()
@@ -180,13 +177,23 @@ class Database:
             conn = sqlite3.connect(str(self.db_file))
             cursor = conn.cursor()
 
+            # Eksik alanları kontrol et ve varsayılan değerler ata
+            if 'durum' not in data:
+                data['durum'] = 'Muayene Bekliyor'
+            if 'ilerleme' not in data:
+                data['ilerleme'] = 0
+
             cursor.execute('''
-                        INSERT INTO hastalar (
-                            hayvan_adi, sahip_adi, tur, cinsiyet, cins, yas, 
-                            durum, ilerleme, sikayet, aciklama, ilaclar, ekleyen_id
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data['cins'], data['yas'], data['durum'], data['ilerleme'], data.get('sikayet', ''),  # Fix: Use get() with default value
-                          data.get('aciklama', ''), data.get('ilaclar', ''), data.get('ekleyen_id')))
+                INSERT INTO hastalar (
+                    hayvan_adi, sahip_adi, tur, cinsiyet, cins, yas, 
+                    durum, ilerleme, sikayet, aciklama, ilaclar, ekleyen_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data.get('cins', ''),  # Boş değer yerine varsayılan değer kullan
+                  data['yas'], data['durum'], data['ilerleme'], data.get('sikayet', ''),  # Boş değer yerine varsayılan değer kullan
+                  data.get('aciklama', ''),  # Boş değer yerine varsayılan değer kullan
+                  data.get('ilaclar', ''),  # Boş değer yerine varsayılan değer kullan
+                  data.get('ekleyen_id', None)  # Null değer yerine None kullan
+            ))
 
             conn.commit()
             conn.close()
@@ -338,7 +345,7 @@ class Database:
                        yas, durum, ilerleme, sikayet, aciklama, ilaclar, 
                        ekleme_tarihi
                 FROM hastalar
-                WHERE durum = 'Muayene Bekliyor'
+                WHERE durum IN ('Muayene Bekliyor', 'Acil Durum')
                 ORDER BY ekleme_tarihi DESC
             ''')
 
@@ -406,39 +413,36 @@ class Database:
             conn = sqlite3.connect(str(self.db_file))
             cursor = conn.cursor()
 
-            # Kullanıcı adı veya TC kimlik kontrolü
+            # Kullanıcı adı kontrolü
             cursor.execute('SELECT COUNT(*) FROM kullanicilar WHERE kullanici_adi = ?', (data['kullanici_adi'],))
             if cursor.fetchone()[0] > 0:
                 conn.close()
-                QMessageBox.warning(None, "Kayıt Hatası", "Bu kullanıcı adı zaten kullanılıyor!")
                 return False
-
-            # TC kimlik kontrolü
-            if 'tc_kimlik' in data:
-                # Önce tc_kimlik sütunu var mı kontrol et
-                cursor.execute("PRAGMA table_info(kullanicilar)")
-                columns = [column[1] for column in cursor.fetchall()]
-
-                if 'tc_kimlik' not in columns:
-                    cursor.execute('ALTER TABLE kullanicilar ADD COLUMN tc_kimlik TEXT')
-                    cursor.execute('ALTER TABLE kullanicilar ADD COLUMN telefon TEXT')
-
-                cursor.execute('SELECT COUNT(*) FROM kullanicilar WHERE tc_kimlik = ?', (data['tc_kimlik'],))
-                if cursor.fetchone()[0] > 0:
-                    conn.close()
-                    QMessageBox.warning(None, "Kayıt Hatası", "Bu TC kimlik numarası ile kayıtlı bir kullanıcı bulunmaktadır!")
-                    return False
 
             # Şifre hashleme
             tuz = uuid.uuid4().hex
             sifre_hash = hashlib.sha256((data['sifre'] + tuz).encode()).hexdigest()
 
-            # Kullanıcıyı ekle
+            # Gerekli sütunları kontrol et
+            cursor.execute("PRAGMA table_info(kullanicilar)")
+            columns = [column[1] for column in cursor.fetchall()]
+
+            # Gerekli sütunları ekle
+            if 'tc_kimlik' not in columns:
+                cursor.execute('ALTER TABLE kullanicilar ADD COLUMN tc_kimlik TEXT')
+            if 'telefon' not in columns:
+                cursor.execute('ALTER TABLE kullanicilar ADD COLUMN telefon TEXT')
+
+            # SQL sorgusunu hazırla
             cursor.execute('''
                 INSERT INTO kullanicilar (
                     kullanici_adi, sifre_hash, tuz, rol, ad_soyad, email, tc_kimlik, telefon
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (data['kullanici_adi'], sifre_hash, tuz, data['rol'], data['ad_soyad'], data.get('email', ''), data.get('tc_kimlik', ''), data.get('telefon', '')))
+            ''', (data['kullanici_adi'], sifre_hash, tuz, data.get('rol', 'hasta_sahibi'),  # Varsayılan rol
+                  data['ad_soyad'], data.get('email', ''),  # Email yoksa boş string
+                  data.get('tc_kimlik', ''),  # TC kimlik yoksa boş string
+                  data.get('telefon', '')  # Telefon yoksa boş string
+            ))
 
             conn.commit()
             conn.close()

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QLineEdit, QComboBox, QRadioButton, QSpinBox,
-                             QSlider, QProgressBar, QTextEdit)
-from PyQt5.QtCore import Qt
+                              QTextEdit)
+
 from ..styles import INPUT_STYLE, RADIO_STYLE, SLIDER_STYLE, PROGRESS_STYLE
 
 class FormElementsWidget(QWidget):
