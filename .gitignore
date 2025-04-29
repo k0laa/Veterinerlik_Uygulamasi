@@ -1,3 +1,10 @@
+#project unversioned files
+resources/icons/reportsss.png
+ui/tabs/hasta_kayit_tab.py
+unversioned
+Gorsel-Programlama-Vize.docx
+rapor.md
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
