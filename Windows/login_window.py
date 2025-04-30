@@ -22,7 +22,7 @@ class LoginWindow(QMainWindow):
         """Sets the role type based on the button clicked."""
         self.role_type = role_type
 
-        # Reset style for previously selected button
+        # Reset style for the previously selected button
         if self.selected_button:
             self.selected_button.setStyleSheet(LOGIN_STYLE)
 
@@ -47,7 +47,7 @@ class LoginWindow(QMainWindow):
             if username == "123" and password == "123":
                 self.role_type = "admin"
 
-            # Perform login with proper role type
+            # Perform login with a proper role type
             result = self.db.login(username, password, self.role_type)
 
             if result['success']:
@@ -83,13 +83,18 @@ class LoginWindow(QMainWindow):
 
     def accept(self):
         try:
-
-            from Windows.doctor_main_window import DoctorWindow
-            self.doctor_window = DoctorWindow(self.db, self.user_data)
-
-            self.close()
-
-            self.doctor_window.show()
+            if self.user_data['rol'] == 'doktor' or self.user_data['rol'] == 'admin':
+                from Windows.doctor_main_window import DoctorWindow
+                self.doctor_window = DoctorWindow(self.db, self.user_data)
+                self.close()
+                self.doctor_window.show()
+            elif self.user_data['rol'] == 'owner':
+                from Windows.owner_window_2 import PatientOwnerWindow
+                self.patient_window = PatientOwnerWindow(self.db, self.user_data)
+                self.close()
+                self.patient_window.show()
+            else:
+                QMessageBox.warning(self, "Hata", "Geçersiz kullanıcı rolü!")
 
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Uygulama pencerisi açılırken bir hata oluştu: {str(e)}")
