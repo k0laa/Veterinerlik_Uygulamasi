@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QTableWidgetItem, QToolBa
 from PyQt5.QtCore import Qt, QDate, QTime
 from ui.doctor_main_window_ui import setup_ui
 from ui.widgets.hasta_karti import HastaKartiWidget
+from Windows.appointment_window import OppointmentWindow
 import os
 from PyQt5.QtGui import QIcon
 
@@ -9,6 +10,9 @@ from PyQt5.QtGui import QIcon
 class DoctorWindow(QMainWindow):
     def __init__(self, database, user_data):
         super().__init__()
+        self.oppointment_window = None
+        self.icon_path = None
+        self.toolbar = None
         self.database = database
         self.user_data = user_data
         self.setup_ui()
@@ -208,7 +212,6 @@ class DoctorWindow(QMainWindow):
 
             record_id = int(self.rapor_table.item(current_row, 0).text())
 
-            from Windows.oppointment_window import OppointmentWindow
             self.oppointment_window = OppointmentWindow(self.database, self.user_data, record_id, self)
             self.oppointment_window.show()
             self.oppointment_window.edit_record()
@@ -257,7 +260,6 @@ class DoctorWindow(QMainWindow):
         try:
             hasta = self.database.muayeneye_al(hasta_id)
             if hasta:
-                from Windows.oppointment_window import OppointmentWindow
                 self.oppointment_window = OppointmentWindow(self.database, self.user_data, hasta_id, self)
                 self.oppointment_window.show()
 
@@ -267,16 +269,16 @@ class DoctorWindow(QMainWindow):
         except Exception as e:
             print(f"Muayeneye alma hatası: {str(e)}")
             QMessageBox.critical(self, "Hata", f"Muayeneye alma işlemi sırasında hata: {str(e)}")
-
-    def detay_goster(self, hasta_id):
-        """Hasta detaylarını gösterir"""
-        try:
-            self.edit_record(hasta_id)
-            self.stacked_widget.setCurrentIndex(0)
-            self.hasta_kayit_action.setChecked(True)
-        except Exception as e:
-            QMessageBox.critical(self, "Hata", f"Detaylar gösterilirken hata: {str(e)}")
-
+    # 
+    # def detay_goster(self, hasta_id):
+    #     """Hasta detaylarını gösterir"""
+    #     try:
+    #         self.edit_record(hasta_id)
+    #         self.stacked_widget.setCurrentIndex(0)
+    #         self.hasta_kayit_action.setChecked(True)
+    #     except Exception as e:
+    #         QMessageBox.critical(self, "Hata", f"Detaylar gösterilirken hata: {str(e)}")
+    # 
 
     def add_appointment(self):
         """Randevu ekler"""
@@ -321,7 +323,6 @@ class DoctorWindow(QMainWindow):
     def yeni_kayit_ekle(self):
         """Yeni kayıt eklemek için muayene penceresini açar"""
         try:
-            from Windows.oppointment_window import OppointmentWindow
             self.oppointment_window = OppointmentWindow(self.database, self.user_data, None, self)
             self.oppointment_window.show()
         except Exception as e:
