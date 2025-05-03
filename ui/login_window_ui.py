@@ -1,14 +1,14 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QLineEdit, QWidget)
-from ui.styles import SIGNUP_STYLE
+from ui.styles import LOGIN_STYLE
 
 
 def setup_ui(window):
     """Login pencere arayüzünü oluşturur"""
     # Pencere ayarları
     window.setWindowTitle("Veteriner Takip Sistemi - Giriş Yap")
-    window.setStyleSheet(SIGNUP_STYLE)
+    window.setStyleSheet(LOGIN_STYLE)
     window.setWindowIcon(QIcon("resources/icons/app_icon.png"))
     window.setFixedSize(500, 700)
 
