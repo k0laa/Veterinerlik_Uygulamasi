@@ -367,3 +367,11 @@ SIGNUP_STYLE = """
         font-size: 13px;
     }
     """
+
+DOCTOR_STYLE_INFO = """
+    QLabel#info {
+        font-size: 20px;
+        font-style: italic;
+        color: #666;
+        }
+    """
