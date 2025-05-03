@@ -7,12 +7,12 @@ from Windows.signup_window import SignupWindow
 class LoginWindow(QMainWindow):
     def __init__(self, db):
         super().__init__()
-        self.patient_window = None
-        self.doctor_window = None
-        self.signup_window = None
         self.db = db
 
         # daha sonra kullanılacak değişkenler
+        self.patient_window = None
+        self.doctor_window = None
+        self.signup_window = None
         self.password_input = None
         self.username_input = None
         self.selected_button = None
