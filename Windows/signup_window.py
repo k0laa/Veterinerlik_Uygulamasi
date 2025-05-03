@@ -102,3 +102,7 @@ class SignupWindow(QMainWindow):
             self.password.setEchoMode(QLineEdit.Password)
             self.password_confirm.setEchoMode(QLineEdit.Password)
             self.show_password_button.setText("Şifreyi Göster")
+
+    def cancel(self):
+        """Kayıt işlemini iptal etme"""
+        self.close()
