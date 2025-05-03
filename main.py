@@ -15,6 +15,5 @@ if __name__ == "__main__":
     # Login penceresini oluştur ve göster
     login_window = LoginWindow(db)
     login_window.show()
-    
-    # Uygulama döngüsünü başlat
+
     sys.exit(app.exec_())
