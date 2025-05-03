@@ -244,7 +244,7 @@ LOGIN_STYLE = """
                         border: none;
                         border-radius: 5px;
                         font-weight: bold;
-                        font-size: 14px;
+                        font-size: 18px;
                     }
                     QPushButton#loginBtn:hover {
                         background-color: #8a6ca7;
@@ -262,6 +262,28 @@ LOGIN_STYLE = """
                         font-size: 12px;
                         font-style: italic;
                     }
+                    QPushButton#signupBtn {
+                        background-color: transparent;
+                        color: #6b4c8c;
+                        border: 2px solid #9b7bb8;
+                        border-radius: 5px;
+                        font-size: 16px;
+                        font-weight: bold;
+                    }
+                    QLineEdit {
+                        font-size: 16px;
+                    }
+                    Qlabel#default {
+                        font-size: 16px;
+                    }
+                    Qlabel#title {
+                        font-size: 28px; 
+                        font-weight: 
+                        bold; 
+                        color: #4a3463; 
+                        margin: 20px 0;
+                    }
+                    
                 """
 
 BUTTON_STYLE_LOGIN = """
@@ -339,3 +361,5 @@ SIGNUP_STYLE = """
         font-style: italic;
         }
     """
+
+

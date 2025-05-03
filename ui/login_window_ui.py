@@ -38,24 +38,22 @@ def setup_ui(window):
 
     # Kullanıcı Adı Yazısı
     username_label = QLabel("Kullanıcı Adı:")
-    username_label.setStyleSheet("font-size: 16px;")
+    username_label.setObjectName("default")
 
     # Kullanıcı Adı Input
     window.username_input = QLineEdit()
     window.username_input.setPlaceholderText("Kullanıcı adınızı girin")
     window.username_input.setFixedHeight(45)
-    window.username_input.setStyleSheet("font-size: 16px;")
 
     # Şifre Yazısı
     password_label = QLabel("Şifre:")
-    password_label.setStyleSheet("font-size: 16px;")
+    password_label.setObjectName("default")
 
     # Şifre Input
     window.password_input = QLineEdit()
     window.password_input.setPlaceholderText("Şifrenizi girin")
     window.password_input.setEchoMode(QLineEdit.Password)
     window.password_input.setFixedHeight(45)
-    window.password_input.setStyleSheet("font-size: 16px;")
 
     # Şifre Göster Buton
     show_pass = QPushButton("Şifreyi Göster")
@@ -67,7 +65,6 @@ def setup_ui(window):
     window.login_button.setObjectName("loginBtn")
     window.login_button.setCursor(Qt.PointingHandCursor)
     window.login_button.setFixedHeight(50)
-    window.login_button.setStyleSheet("font-size: 18px;")
 
     # Kayıt Ol Buton
     window.signup_button = QPushButton("Kayıt Ol")
