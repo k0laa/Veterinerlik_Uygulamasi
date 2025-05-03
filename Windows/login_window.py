@@ -1,13 +1,15 @@
 from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QLineEdit, )
-from utils.database import Database
 from ui.login_window_ui import setup_ui
 from ui.styles import LOGIN_STYLE, BUTTON_STYLE_LOGIN
 from Windows.signup_window import SignupWindow
 
 
 class LoginWindow(QMainWindow):
-    def __init__(self, db: Database):
+    def __init__(self, db):
         super().__init__()
+        self.patient_window = None
+        self.doctor_window = None
+        self.signup_window = None
         self.db = db
 
         # daha sonra kullanılacak değişkenler
@@ -59,14 +61,14 @@ class LoginWindow(QMainWindow):
             # Kullanıcı rolüne göre uygun pencereyi açma
             if self.user_data['rol'] == 'doktor' or self.user_data['rol'] == 'admin':
                 from Windows.doctor_main_window import DoctorWindow
-                doctor_window = DoctorWindow(self.db, self.user_data)
+                self.doctor_window = DoctorWindow(self.db, self.user_data)
                 self.close()
-                doctor_window.show()
+                self.doctor_window.show()
             elif self.user_data['rol'] == 'owner':
                 from Windows.owner_window_2 import PatientOwnerWindow
-                patient_window = PatientOwnerWindow(self.db, self.user_data)
+                self.patient_window = PatientOwnerWindow(self.db, self.user_data)
                 self.close()
-                patient_window.show()
+                self.patient_window.show()
             else:
                 QMessageBox.warning(self, "Hata", "Geçersiz kullanıcı rolü!")
 
@@ -76,8 +78,8 @@ class LoginWindow(QMainWindow):
     def show_signup(self):
         """Kayıt pencersiniz gösterme"""
         try:
-            signup_window = SignupWindow(self.db)
-            signup_window.show()
+            self.signup_window = SignupWindow(self.db)
+            self.signup_window.show()
 
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Kayıt formunu açarken bir hata oluştu: {str(e)}")
