@@ -152,8 +152,3 @@ class DoctorWindow(QMainWindow):
 
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Kayıt düzenleme hatası: {str(e)}")
-
-    def switch_to_tab(self, index):
-        self.raporlar_action.setChecked(index == 0)
-        self.bekleyen_action.setChecked(index == 1)
-        self.stacked_widget.setCurrentIndex(index)
