@@ -375,3 +375,30 @@ DOCTOR_STYLE_INFO = """
         color: #666;
         }
     """
+
+BEKLEYEN_STYLE = """
+    QLabel#title {
+        font-size: 20px;
+        color: #4a3463;
+        font-weight: bold;
+        padding: 10px;
+    }
+    QPushButton {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    QPushButton:hover {
+        background-color: #45a049;
+    }
+    QScrollArea {
+        border: none;
+        background-color: transparent;
+    }  
+    QScrollArea > QWidget > QWidget {
+        background-color: transparent;
+    }
+"""

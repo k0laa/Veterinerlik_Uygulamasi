@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QStackedWidget, QToolBar
 from PyQt5.QtGui import QIcon
 from ui.widgets.menu import setup_menu
-from styles import TOOLBAR_STYLE
-from tabs.raporlar_tab import setup_raporlar_tab
-from tabs.bekleyen_hastalar_tab import setup_bekleyen_hastalar_tab
+from ui.styles import TOOLBAR_STYLE
+from ui.tabs.raporlar_tab import setup_raporlar_tab
+from ui.tabs.bekleyen_hastalar_tab import setup_bekleyen_hastalar_tab
 
 
 def setup_ui(window):
