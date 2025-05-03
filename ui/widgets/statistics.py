@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QGroupBox, QVBoxLayout, QLabel, QHBoxLayout
 from PyQt5.QtCore import Qt
-from ..styles import GROUP_STYLE, STAT_TITLE_STYLE, STAT_VALUE_STYLE
+from ui.styles import GROUP_STYLE, STAT_TITLE_STYLE, STAT_VALUE_STYLE
 
 def create_stat_card(title, value):
     """İstatistik kartı oluşturur"""
