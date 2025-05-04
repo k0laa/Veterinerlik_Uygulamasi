@@ -491,7 +491,6 @@ PROFILE_STYLE = """
     }
     """
 
-
 SAVE_BTN_STYLE = """QPushButton {
         background-color: #9b7bb8;
         color: white;
@@ -519,3 +518,49 @@ EDIT_BTN_STYLE = """
         background-color: #f0e6ff;
     }
 """
+
+HAYVAN_KARTI_STYLE = """
+    QWidget#kart {
+        background-color: #f5f0ff;
+        border: 1px solid #d4c6e6;
+        border-radius: 8px;
+        }
+    QPushButton#editBtn {
+        background-color: #9b7bb8;
+        color: white;
+        border: 2px solid #9b7bb8;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 12px;
+        min-height: 30px;
+    }
+    QPushButton#editBtn:hover {
+        background-color: #8a6ca7;
+    }
+    QPushButton#dltBtn {
+        background-color: transparent;
+        color: #6b4c8c;
+        border: 2px solid #9b7bb8;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 12px;
+        min-height: 30px;
+    }
+    QPushButton#dltBtn:hover {
+        background-color: #f0e6ff;
+    }
+"""
+
+NEW_BUTTON_STYLE = """
+    QPushButton {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    QPushButton:hover {
+        background-color: #45a049;
+    }
+    """

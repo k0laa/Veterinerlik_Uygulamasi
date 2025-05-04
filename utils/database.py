@@ -144,6 +144,46 @@ class Database:
             ('hasta_sahibi', 0, 0, 0, 0, 0)
                        ''')
 
+        # Kullanıcı petler tablosu
+        cursor.execute('''
+                       CREATE TABLE IF NOT EXISTS pets
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           hayvan_adi
+                           TEXT
+                           NOT
+                           NULL,
+                           tur
+                           TEXT
+                           NOT
+                           NULL,
+                           cins
+                           TEXT,
+                           cinsiyet
+                           TEXT
+                           NOT
+                           NULL,
+                           yas
+                           INTEGER
+                           NOT
+                           NULL,
+                           ekleyen_id
+                           INTEGER,
+                           FOREIGN
+                           KEY
+                       (
+                           ekleyen_id
+                       ) REFERENCES kullanicilar
+                       (
+                           id
+                       )
+                           )
+                       ''')
+
         conn.commit()
         conn.close()
 
@@ -272,7 +312,6 @@ class Database:
                                   SET sifre_hash = ?,
                                       tuz        = ?
                                   WHERE id = ?''', (sifre_hash, tuz, user_id))
-
 
             conn.commit()
             conn.close()
@@ -667,49 +706,19 @@ class Database:
             print(f"Profil bilgilerini getirme hatası: {e}")
             return None
 
-    def add_pet(self, data):
-        """Yeni hayvan kaydı ekler"""
+    def add_pets(self, user_id, pet_data):
+        """Kullanıcıya yeni hayvan ekler"""
         try:
             conn = sqlite3.connect(str(self.db_file))
             cursor = conn.cursor()
 
-            # SQL sorgusunu hazırla
             cursor.execute('''
-                           INSERT INTO hastalar (hayvan_adi, sahip_adi, tur, cinsiyet, cins, yas,
-                                                 durum, ilerleme, sikayet, aciklama, ilaclar, ekleyen_id)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                           ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data.get('cins', ''), data['yas'], data['durum'], data['ilerleme'], data.get('sikayet', ''), data.get('aciklama', ''), data.get('ilaclar', ''),
-                                 data.get('ekleyen_id', None)))
+                           INSERT INTO pets (hayvan_adi, tur, cins, cinsiyet, yas, ekleyen_id)
+                           VALUES (?, ?, ?, ?, ?, ?)
+                           ''', (pet_data['name'], pet_data['tur'], pet_data['cins'], pet['cinsiyet'], pet['yas'], user_id))
             conn.commit()
             conn.close()
             return True
         except Exception as e:
             print(f"Hayvan ekleme hatası: {e}")
-            return False
-
-    def delete_pet_by_name(self, pet_name, user_id):
-        """Belirli bir kullanıcıya ait peti isme göre siler."""
-        try:
-            conn = sqlite3.connect(str(self.db_file))
-            cursor = conn.cursor()
-            cursor.execute('DELETE FROM hastalar WHERE hayvan_adi = ? AND ekleyen_id = ?', (pet_name, user_id))
-            conn.commit()
-            conn.close()
-            return True
-        except Exception as e:
-            print(f"Pet silme hatası: {e}")
-            return False
-
-    def update_pet_by_name(self, pet_name, user_id, updates):
-        """Belirli bir kullanıcıya ait peti isme göre günceller."""
-        try:
-            conn = sqlite3.connect(str(self.db_file))
-            cursor = conn.cursor()
-            for column, value in updates.items():
-                cursor.execute(f'UPDATE hastalar SET {column} = ? WHERE hayvan_adi = ? AND ekleyen_id = ?', (value, pet_name, user_id))
-            conn.commit()
-            conn.close()
-            return True
-        except Exception as e:
-            print(f"Pet güncelleme hatası: {e}")
             return False
