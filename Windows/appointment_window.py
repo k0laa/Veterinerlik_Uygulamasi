@@ -24,7 +24,7 @@ class OppointmentWindow(QMainWindow):
         if self.hasta_id:
             hasta = self.db.muayeneye_al(self.hasta_id)
             if hasta:
-                # Fill form fields with patient data
+                # Form alanlarını doldur
                 self.form_elements['ad_input'].setText(hasta[0])
                 self.form_elements['sahip_input'].setText(hasta[1])
                 self.form_elements['tur_combo'].setCurrentText(hasta[2])
@@ -36,8 +36,10 @@ class OppointmentWindow(QMainWindow):
                 self.form_elements['aciklama_text'].setText(hasta[7])
 
                 # Update status
-                if hasta[8] == "Muayeneye Alındı":
+                if hasta[9] == "Muayene Bekliyor":
                     self.durum_takip.set_durum("Teşhis Konuldu", 20)
+
+                print(hasta)
 
             else:
                 QMessageBox.warning(self, "Hata", "Hasta muayeneye alınamadı.")

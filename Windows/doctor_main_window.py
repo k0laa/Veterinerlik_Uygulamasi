@@ -32,6 +32,7 @@ class DoctorWindow(QMainWindow):
         self.refresh_raporlar_tab()
         self.refresh_bekleyen_hastalar_tab()
 
+
     def refresh_raporlar_tab(self):
         """Rapor tablosunu ve istatistikleri günceller"""
         if hasattr(self, 'rapor_table'):
@@ -158,7 +159,6 @@ class DoctorWindow(QMainWindow):
             hasta = self.database.muayeneye_al(hasta_id)
             if hasta:
                 self.oppointment_window = OppointmentWindow(self.database, self.user_data, hasta_id, self)
-                self.oppointment_window.durum_takip.sonraki_duruma_gec()
                 self.oppointment_window.show()
 
             else:

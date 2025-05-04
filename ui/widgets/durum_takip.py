@@ -76,29 +76,33 @@ class DurumTakipWidget(QWidget):
         layout.addLayout(buton_layout)
 
         # İlk durum rengini ayarla
-        self.durum_degisti(self.durum_combo.currentText())
+        self.durum_degisti()
 
-    def durum_degisti(self, yeni_durum):
-        """Durum değiştiğinde renk göstergesini güncelle"""
+    def durum_degisti(self):
+        """Durum değiştiğinde renk göstergesini ve ilerlemeyi güncelle"""
+        yeni_durum = self.durum_combo.currentText()
         renk = DURUM_RENKLERI[yeni_durum]
         self.renk_gosterge.setStyleSheet(f"""
-            background-color: {renk};
-            border-radius: 10px;
-            border: 1px solid #666;
-        """)
+               background-color: {renk};
+               border-radius: 10px;
+               border: 1px solid #666;
+           """)
 
-        # İlerleme çubuğunun rengini de güncelle
+        # İlerleme çubuğunu güncelle
+        ilerleme = DURUM_ILERLEME[yeni_durum]
+        self.ilerleme_bar.setValue(ilerleme)
+
+        # İlerleme çubuğunun rengini güncelle
         self.ilerleme_bar.setStyleSheet(f"""
-            QProgressBar {{
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                text-align: center;
-            }}
-            QProgressBar::chunk {{
-                background-color: {renk};
-                border-radius: 4px;
-            }}
-        """)
+               QProgressBar {{
+                   border: 1px solid #d4c6e6;
+                   border-radius: 4px;
+                   text-align: center;
+               }}
+               QProgressBar::chunk {{
+                   background-color: {renk};
+               }}
+           """)
 
     def onceki_duruma_gec(self):
         """Bir önceki duruma geç"""

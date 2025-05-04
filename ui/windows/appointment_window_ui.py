@@ -39,7 +39,7 @@ def setup_ui(window):
 
 
     # Ana widget
-    window.stacked_widget = QStackedWidget(window)
+    window.stacked_widget = QWidget()
     window.setCentralWidget(window.stacked_widget)
 
     # Ana layout

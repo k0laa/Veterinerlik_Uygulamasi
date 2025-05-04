@@ -395,13 +395,6 @@ class Database:
             conn = sqlite3.connect(str(self.db_file))
             cursor = conn.cursor()
 
-            # Durumu güncelle
-            cursor.execute('''
-                UPDATE hastalar 
-                SET durum = 'Teşhis Konuldu'
-                WHERE id = ?
-            ''', (hasta_id,))
-
             # Hasta bilgilerini getir
             cursor.execute('''
                 SELECT hayvan_adi, sahip_adi, tur, cins, cinsiyet, yas,
