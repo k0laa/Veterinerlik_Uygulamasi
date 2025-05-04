@@ -402,3 +402,13 @@ BEKLEYEN_STYLE = """
         background-color: transparent;
     }
 """
+
+MENU_STYLE = """
+    QMenuBar {
+        background-color: #f5f0ff;
+        border-bottom: 1px solid #d4c6e6;
+    }
+    QMenuBar::item:selected {
+        background-color: #e6dff2;
+    }
+"""
