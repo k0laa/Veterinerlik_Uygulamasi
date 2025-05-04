@@ -17,58 +17,132 @@ class Database:
 
         # Kullanıcılar tablosu
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS kullanicilar (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                kullanici_adi TEXT UNIQUE NOT NULL,
-                sifre_hash TEXT NOT NULL,
-                tuz TEXT NOT NULL,
-                rol TEXT NOT NULL,
-                ad_soyad TEXT NOT NULL,
-                email TEXT,
-                son_giris DATETIME
-            )
-        ''')
+                       CREATE TABLE IF NOT EXISTS kullanicilar
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           kullanici_adi
+                           TEXT
+                           UNIQUE
+                           NOT
+                           NULL,
+                           sifre_hash
+                           TEXT
+                           NOT
+                           NULL,
+                           tuz
+                           TEXT
+                           NOT
+                           NULL,
+                           rol
+                           TEXT
+                           NOT
+                           NULL,
+                           ad_soyad
+                           TEXT
+                           NOT
+                           NULL,
+                           email
+                           TEXT,
+                           son_giris
+                           DATETIME
+                       )
+                       ''')
 
         # Yetkiler tablosu
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS yetkiler (
-                rol TEXT PRIMARY KEY,
-                hasta_ekle BOOLEAN,
-                hasta_duzenle BOOLEAN,
-                hasta_sil BOOLEAN,
-                rapor_goruntule BOOLEAN,
-                kullanici_yonet BOOLEAN
-            )
-        ''')
+                       CREATE TABLE IF NOT EXISTS yetkiler
+                       (
+                           rol
+                           TEXT
+                           PRIMARY
+                           KEY,
+                           hasta_ekle
+                           BOOLEAN,
+                           hasta_duzenle
+                           BOOLEAN,
+                           hasta_sil
+                           BOOLEAN,
+                           rapor_goruntule
+                           BOOLEAN,
+                           kullanici_yonet
+                           BOOLEAN
+                       )
+                       ''')
 
         # Hastalar tablosu
         cursor.execute('''
-                CREATE TABLE IF NOT EXISTS hastalar (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    hayvan_adi TEXT NOT NULL,
-                    sahip_adi TEXT NOT NULL,
-                    tur TEXT NOT NULL,
-                    cins TEXT,
-                    cinsiyet TEXT NOT NULL,
-                    yas INTEGER NOT NULL,
-                    durum TEXT NOT NULL,
-                    ilerleme INTEGER NOT NULL,
-                    sikayet TEXT,
-                    aciklama TEXT,
-                    ilaclar TEXT,
-                    ekleyen_id INTEGER,
-                    ekleme_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (ekleyen_id) REFERENCES kullanicilar(id)
-                )
-            ''')
+                       CREATE TABLE IF NOT EXISTS hastalar
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           hayvan_adi
+                           TEXT
+                           NOT
+                           NULL,
+                           sahip_adi
+                           TEXT
+                           NOT
+                           NULL,
+                           tur
+                           TEXT
+                           NOT
+                           NULL,
+                           cins
+                           TEXT,
+                           cinsiyet
+                           TEXT
+                           NOT
+                           NULL,
+                           yas
+                           INTEGER
+                           NOT
+                           NULL,
+                           durum
+                           TEXT
+                           NOT
+                           NULL,
+                           ilerleme
+                           INTEGER
+                           NOT
+                           NULL,
+                           sikayet
+                           TEXT,
+                           aciklama
+                           TEXT,
+                           ilaclar
+                           TEXT,
+                           ekleyen_id
+                           INTEGER,
+                           ekleme_tarihi
+                           DATETIME
+                           DEFAULT
+                           CURRENT_TIMESTAMP,
+                           FOREIGN
+                           KEY
+                       (
+                           ekleyen_id
+                       ) REFERENCES kullanicilar
+                       (
+                           id
+                       )
+                           )
+                       ''')
 
         # Varsayılan yetkileri ekle
-        cursor.execute('''INSERT OR IGNORE INTO yetkiler VALUES 
+        cursor.execute('''INSERT
+        OR IGNORE INTO yetkiler VALUES 
             ('admin', 1, 1, 1, 1, 1),
             ('doktor', 1, 1, 1, 1, 0),
             ('asistan', 1, 0, 0, 1, 0),
             ('hasta_sahibi', 0, 0, 0, 0, 0)
-        ''')
+                       ''')
 
         conn.commit()
         conn.close()
@@ -91,9 +165,9 @@ class Database:
             sifre_hash = hashlib.sha256((sifre + tuz).encode()).hexdigest()
 
             cursor.execute('''
-                INSERT INTO kullanicilar (kullanici_adi, sifre_hash, tuz, rol, ad_soyad, email)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', ('admin', sifre_hash, tuz, 'admin', 'Sistem Yöneticisi', 'admin@veteriner.com'))
+                           INSERT INTO kullanicilar (kullanici_adi, sifre_hash, tuz, rol, ad_soyad, email)
+                           VALUES (?, ?, ?, ?, ?, ?)
+                           ''', ('admin', sifre_hash, tuz, 'admin', 'Sistem Yöneticisi', 'admin@veteriner.com'))
 
             conn.commit()
             conn.close()
@@ -132,19 +206,9 @@ class Database:
                         yetkiler = (rol, 0, 0, 0, 0, 0)
 
                     conn.close()
-                    return {
-                        'success': True,
-                        'user_id': user_id,
-                        'rol': rol,
-                        'yetkiler': {
-                            'hasta_ekle': yetkiler[1],
-                            'hasta_duzenle': yetkiler[2],
-                            'hasta_sil': yetkiler[3],
-                            'rapor_goruntule': yetkiler[4],
-                            'kullanici_yonet': yetkiler[5]
-                        },
-                        'id': user_id  # 'id' anahtarını ekle
-                    }
+                    return {'success': True, 'user_id': user_id, 'rol': rol, 'yetkiler': {'hasta_ekle': yetkiler[1], 'hasta_duzenle': yetkiler[2], 'hasta_sil': yetkiler[3], 'rapor_goruntule': yetkiler[4], 'kullanici_yonet': yetkiler[5]},
+                            'id': user_id  # 'id' anahtarını ekle
+                            }
 
             conn.close()
             return {'success': False, 'error': 'Invalid username or password'}
@@ -168,9 +232,9 @@ class Database:
                 sifre_hash = hashlib.sha256((data['sifre'] + tuz).encode()).hexdigest()
 
                 cursor.execute('''
-                    INSERT INTO kullanicilar (kullanici_adi, sifre_hash, tuz, rol, ad_soyad, email)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                ''', (data['kullanici_adi'], sifre_hash, tuz, data['rol'], data['ad_soyad'], data.get('email', '')))
+                               INSERT INTO kullanicilar (kullanici_adi, sifre_hash, tuz, rol, ad_soyad, email)
+                               VALUES (?, ?, ?, ?, ?, ?)
+                               ''', (data['kullanici_adi'], sifre_hash, tuz, data['rol'], data['ad_soyad'], data.get('email', '')))
 
                 conn.commit()
                 conn.close()
@@ -181,6 +245,41 @@ class Database:
 
         except Exception as e:
             print(f"Kullanıcı ekleme hatası: {e}")
+            return False
+
+    def update_user_profile(self, user_id, name, tc, email, phone, username, new_password):
+        """Kullanıcı profilini günceller"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            # Kullanıcı bilgilerini güncelle
+            cursor.execute('''
+                           UPDATE kullanicilar
+                           SET ad_soyad      = ?,
+                               tc_kimlik     = ?,
+                               email         = ?,
+                               telefon       = ?,
+                               kullanici_adi = ?
+                           WHERE id = ?
+                           ''', (name, tc, email, phone, username, user_id))
+
+            # Şifreyi güncelle
+            if new_password:
+                tuz = uuid.uuid4().hex
+                sifre_hash = hashlib.sha256((new_password + tuz).encode()).hexdigest()
+                cursor.execute('''UPDATE kullanicilar
+                                  SET sifre_hash = ?,
+                                      tuz        = ?
+                                  WHERE id = ?''', (sifre_hash, tuz, user_id))
+
+
+            conn.commit()
+            conn.close()
+            return True
+
+        except Exception as e:
+            print(f"Kullanıcı güncelleme hatası: {e}")
             return False
 
     def add_patient(self, data):
@@ -196,16 +295,15 @@ class Database:
                 data['ilerleme'] = 0
 
             cursor.execute('''
-                INSERT INTO hastalar (
-                    hayvan_adi, sahip_adi, tur, cinsiyet, cins, yas, 
-                    durum, ilerleme, sikayet, aciklama, ilaclar, ekleyen_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data.get('cins', ''),  # Boş değer yerine varsayılan değer kullan
-                  data['yas'], data['durum'], data['ilerleme'], data.get('sikayet', ''),  # Boş değer yerine varsayılan değer kullan
-                  data.get('aciklama', ''),  # Boş değer yerine varsayılan değer kullan
-                  data.get('ilaclar', ''),  # Boş değer yerine varsayılan değer kullan
-                  data.get('ekleyen_id', None)  # Null değer yerine None kullan
-            ))
+                           INSERT INTO hastalar (hayvan_adi, sahip_adi, tur, cinsiyet, cins, yas,
+                                                 durum, ilerleme, sikayet, aciklama, ilaclar, ekleyen_id)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                           ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data.get('cins', ''),  # Boş değer yerine varsayılan değer kullan
+                                 data['yas'], data['durum'], data['ilerleme'], data.get('sikayet', ''),  # Boş değer yerine varsayılan değer kullan
+                                 data.get('aciklama', ''),  # Boş değer yerine varsayılan değer kullan
+                                 data.get('ilaclar', ''),  # Boş değer yerine varsayılan değer kullan
+                                 data.get('ekleyen_id', None)  # Null değer yerine None kullan
+                                 ))
 
             conn.commit()
             conn.close()
@@ -222,11 +320,22 @@ class Database:
             cursor = conn.cursor()
 
             cursor.execute('''
-                        SELECT id, hayvan_adi, sahip_adi, tur, cins, cinsiyet, 
-                               yas, durum, ilerleme, sikayet, aciklama, ilaclar, ekleme_tarihi 
-                        FROM hastalar
-                        ORDER BY id DESC
-                    ''')
+                           SELECT id,
+                                  hayvan_adi,
+                                  sahip_adi,
+                                  tur,
+                                  cins,
+                                  cinsiyet,
+                                  yas,
+                                  durum,
+                                  ilerleme,
+                                  sikayet,
+                                  aciklama,
+                                  ilaclar,
+                                  ekleme_tarihi
+                           FROM hastalar
+                           ORDER BY id DESC
+                           ''')
 
             records = cursor.fetchall()
             conn.close()
@@ -298,11 +407,20 @@ class Database:
             cursor = conn.cursor()
 
             cursor.execute('''
-                        UPDATE hastalar 
-                        SET hayvan_adi=?, sahip_adi=?, tur=?, cinsiyet=?, cins=?, yas=?, 
-                            durum=?, ilerleme=?, sikayet=?, aciklama=?, ilaclar=?
-                        WHERE id=?
-                    ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data['cins'], data['yas'], data['durum'], data['ilerleme'], data['sikayet'], data['aciklama'], data['ilaclar'], record_id))
+                           UPDATE hastalar
+                           SET hayvan_adi=?,
+                               sahip_adi=?,
+                               tur=?,
+                               cinsiyet=?,
+                               cins=?,
+                               yas=?,
+                               durum=?,
+                               ilerleme=?,
+                               sikayet=?,
+                               aciklama=?,
+                               ilaclar=?
+                           WHERE id = ?
+                           ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data['cins'], data['yas'], data['durum'], data['ilerleme'], data['sikayet'], data['aciklama'], data['ilaclar'], record_id))
 
             conn.commit()
             conn.close()
@@ -329,17 +447,47 @@ class Database:
 
             # Randevular tablosunu ekle
             cursor.execute('''
-                        CREATE TABLE IF NOT EXISTS randevular (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            hasta_id INTEGER NOT NULL,
-                            tarih TEXT NOT NULL,
-                            saat TEXT NOT NULL,
-                            tip TEXT NOT NULL,
-                            notlar TEXT DEFAULT NULL,
-                            durum TEXT DEFAULT 'Bekliyor',
-                            FOREIGN KEY (hasta_id) REFERENCES hastalar(id)
-                        )
-                    ''')
+                           CREATE TABLE IF NOT EXISTS randevular
+                           (
+                               id
+                               INTEGER
+                               PRIMARY
+                               KEY
+                               AUTOINCREMENT,
+                               hasta_id
+                               INTEGER
+                               NOT
+                               NULL,
+                               tarih
+                               TEXT
+                               NOT
+                               NULL,
+                               saat
+                               TEXT
+                               NOT
+                               NULL,
+                               tip
+                               TEXT
+                               NOT
+                               NULL,
+                               notlar
+                               TEXT
+                               DEFAULT
+                               NULL,
+                               durum
+                               TEXT
+                               DEFAULT
+                               'Bekliyor',
+                               FOREIGN
+                               KEY
+                           (
+                               hasta_id
+                           ) REFERENCES hastalar
+                           (
+                               id
+                           )
+                               )
+                           ''')
 
             conn.commit()
             conn.close()
@@ -353,13 +501,23 @@ class Database:
             cursor = conn.cursor()
 
             cursor.execute('''
-                SELECT id, hayvan_adi, sahip_adi, tur, cins, cinsiyet,
-                       yas, durum, ilerleme, sikayet, aciklama, ilaclar, 
-                       ekleme_tarihi
-                FROM hastalar
-                WHERE durum IN ('Muayene Bekliyor', 'Acil Durum')
-                ORDER BY ekleme_tarihi DESC
-            ''')
+                           SELECT id,
+                                  hayvan_adi,
+                                  sahip_adi,
+                                  tur,
+                                  cins,
+                                  cinsiyet,
+                                  yas,
+                                  durum,
+                                  ilerleme,
+                                  sikayet,
+                                  aciklama,
+                                  ilaclar,
+                                  ekleme_tarihi
+                           FROM hastalar
+                           WHERE durum IN ('Muayene Bekliyor', 'Acil Durum')
+                           ORDER BY ekleme_tarihi DESC
+                           ''')
 
             records = cursor.fetchall()
             conn.close()
@@ -376,10 +534,10 @@ class Database:
             cursor = conn.cursor()
 
             cursor.execute('''
-                UPDATE hastalar 
-                SET durum = ?
-                WHERE id = ?
-            ''', (new_status, patient_id))
+                           UPDATE hastalar
+                           SET durum = ?
+                           WHERE id = ?
+                           ''', (new_status, patient_id))
 
             conn.commit()
             conn.close()
@@ -397,11 +555,20 @@ class Database:
 
             # Hasta bilgilerini getir
             cursor.execute('''
-                SELECT hayvan_adi, sahip_adi, tur, cins, cinsiyet, yas,
-                       sikayet, aciklama, ilaclar, durum, ilerleme
-                FROM hastalar
-                WHERE id = ?
-            ''', (hasta_id,))
+                           SELECT hayvan_adi,
+                                  sahip_adi,
+                                  tur,
+                                  cins,
+                                  cinsiyet,
+                                  yas,
+                                  sikayet,
+                                  aciklama,
+                                  ilaclar,
+                                  durum,
+                                  ilerleme
+                           FROM hastalar
+                           WHERE id = ?
+                           ''', (hasta_id,))
             hasta = cursor.fetchone()
 
             conn.commit()
@@ -440,14 +607,13 @@ class Database:
 
             # SQL sorgusunu hazırla
             cursor.execute('''
-                INSERT INTO kullanicilar (
-                    kullanici_adi, sifre_hash, tuz, rol, ad_soyad, email, tc_kimlik, telefon
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (data['kullanici_adi'], sifre_hash, tuz, data.get('rol', 'hasta_sahibi'),  # Varsayılan rol
-                  data['ad_soyad'], data.get('email', ''),  # Email yoksa boş string
-                  data.get('tc_kimlik', ''),  # TC kimlik yoksa boş string
-                  data.get('telefon', '')  # Telefon yoksa boş string
-            ))
+                           INSERT INTO kullanicilar (kullanici_adi, sifre_hash, tuz, rol, ad_soyad, email, tc_kimlik, telefon)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                           ''', (data['kullanici_adi'], sifre_hash, tuz, data.get('rol', 'hasta_sahibi'),  # Varsayılan rol
+                                 data['ad_soyad'], data.get('email', ''),  # Email yoksa boş string
+                                 data.get('tc_kimlik', ''),  # TC kimlik yoksa boş string
+                                 data.get('telefon', '')  # Telefon yoksa boş string
+                                 ))
 
             conn.commit()
             conn.close()
@@ -464,10 +630,10 @@ class Database:
             cursor = conn.cursor()
 
             cursor.execute('''
-                SELECT hayvan_adi AS name, tur AS type, cins AS breed, yas AS age
-                FROM hastalar
-                WHERE ekleyen_id = ?
-            ''', (user_id,))
+                           SELECT hayvan_adi AS name, tur AS type, cins AS breed, yas AS age
+                           FROM hastalar
+                           WHERE ekleyen_id = ?
+                           ''', (user_id,))
 
             pets = cursor.fetchall()
             conn.close()
@@ -484,24 +650,22 @@ class Database:
             cursor = conn.cursor()
 
             cursor.execute('''
-                SELECT ad_soyad, tc_kimlik, email, telefon
-                FROM kullanicilar
-                WHERE id = ?
-            ''', (user_id,))
+                           SELECT ad_soyad, tc_kimlik, email, telefon, kullanici_adi, sifre_hash, tuz
+                           FROM kullanicilar
+                           WHERE id = ?
+                           ''', (user_id,))
 
             profile = cursor.fetchone()
             conn.close()
-            return {
-                'name': profile[0],
-                'tc': profile[1],
-                'email': profile[2],
-                'phone': profile[3]
-            } if profile else None
+
+            # Profil bilgilerini döndür
+            return {'id': user_id, 'name': profile[0], 'tc': profile[1], 'email': profile[2], 'phone': profile[3], 'username': profile[4], 'hash': profile[5], 'tuz': profile[6]
+
+                    } if profile else None
 
         except Exception as e:
             print(f"Profil bilgilerini getirme hatası: {e}")
             return None
-
 
     def add_pet(self, data):
         """Yeni hayvan kaydı ekler"""
@@ -511,16 +675,11 @@ class Database:
 
             # SQL sorgusunu hazırla
             cursor.execute('''
-                INSERT INTO hastalar (
-                    hayvan_adi, sahip_adi, tur, cinsiyet, cins, yas, 
-                    durum, ilerleme, sikayet, aciklama, ilaclar, ekleyen_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'],
-                data.get('cins', ''), data['yas'], data['durum'], data['ilerleme'],
-                data.get('sikayet', ''), data.get('aciklama', ''), data.get('ilaclar', ''),
-                data.get('ekleyen_id', None)
-            ))
+                           INSERT INTO hastalar (hayvan_adi, sahip_adi, tur, cinsiyet, cins, yas,
+                                                 durum, ilerleme, sikayet, aciklama, ilaclar, ekleyen_id)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                           ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data.get('cins', ''), data['yas'], data['durum'], data['ilerleme'], data.get('sikayet', ''), data.get('aciklama', ''), data.get('ilaclar', ''),
+                                 data.get('ekleyen_id', None)))
             conn.commit()
             conn.close()
             return True

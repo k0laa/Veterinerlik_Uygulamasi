@@ -61,8 +61,11 @@ def setup_ui(window):
     window.pets_action.triggered.connect(lambda: switch_to_tab(1))
     window.appointments_action.triggered.connect(lambda: switch_to_tab(2))
 
+
     def switch_to_tab(index):
         window.profile_action.setChecked(index == 0)
         window.pets_action.setChecked(index == 1)
         window.appointments_action.setChecked(index == 2)
         window.stacked_widget.setCurrentIndex(index)
+
+    switch_to_tab(1)

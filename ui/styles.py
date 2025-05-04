@@ -412,3 +412,110 @@ MENU_STYLE = """
         background-color: #e6dff2;
     }
 """
+
+PROFILE_STYLE = """
+    QFrame {
+        background-color: #f5f0ff;
+        border: 1px solid #d4c6e6;
+        border-radius: 4px;
+        padding: 10px;
+    }
+    QDialog {
+        background-color: #f5f0ff;
+    }
+    QLineEdit {
+        background: white;
+        color: #2c1810;
+        font-size: 14px;
+        padding: 5px 10px;
+        border: 2px solid #d4c6e6;
+        border-radius: 5px;
+        selection-background-color: #9b7bb8;
+        selection-color: white;
+        min-height: 30px;
+    }
+    QLineEdit:focus {
+        border: 2px solid #9b7bb8;
+    }
+    QLineEdit::placeholder {
+        color: #b4a6c6;
+    }
+    
+    QFormLayout {
+        spacing: 10px;
+    }
+    QLabel#info {
+        font-size: 12px;
+        font-style: italic;
+        color: #666;
+        }
+    QLabel#title{
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a3463; 
+            margin-bottom: 20px;
+    }
+    QLabel#colTitle{
+            font-size: 16px; 
+            font-weight: bold; 
+            color: #6b4c8c;
+    }
+    QPushButton#showPass {
+        color: #9b7bb8;
+        border: none;
+        font-size: 13px;
+    }
+    QPushButton#saveBtn {
+        background-color: transparent;
+        color: #6b4c8c;
+        border: 2px solid #9b7bb8;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        min-height: 40px;
+    }
+    QPushButton#saveBtn:hover {
+        background-color: #f0e6ff;
+    }
+    QPushButton#cancelBtn {
+        background-color: transparent;
+        color: #6b4c8c;
+        border: 2px solid #9b7bb8;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        min-height: 40px;
+    }
+    QPushButton#cancelBtn:hover {
+        background-color: #f0e6ff;
+    }
+    """
+
+
+SAVE_BTN_STYLE = """QPushButton {
+        background-color: #9b7bb8;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        min-height: 40px;
+    }
+    QPushButton:hover {
+        background-color: #8a6ca7;
+    }
+    """
+EDIT_BTN_STYLE = """
+    QPushButton {
+        background-color: transparent;
+        color: #6b4c8c;
+        border: 2px solid #9b7bb8;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        min-height: 40px;
+    }
+    QPushButton:hover {
+        background-color: #f0e6ff;
+    }
+"""
