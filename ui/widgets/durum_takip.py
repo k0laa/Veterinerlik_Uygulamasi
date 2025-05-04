@@ -1,31 +1,27 @@
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout,
-                             QLabel, QComboBox, QPushButton, QProgressBar)
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton, QProgressBar
 
+DURUM_RENKLERI = {'Muayene Bekliyor': '#FFA07A',  # Açık mercan
+                  'Teşhis Konuldu': '#DDA0DD',  # Açık mor
+                  'Tedaviye Başlandı': '#87CEEB',  # Açık mavi
+                  'İyileşme Sürecinde': '#90EE90',  # Açık yeşil
+                  'Kontrol Zamanı': '#FFB6C1',  # Açık pembe
+                  'Tedavi Tamamlandı': '#98FB98',  # Açık yeşil
+                  'Acil Durum': '#FF6B6B',  # Kırmızı
+                  }
 
-DURUM_RENKLERI = {
-    'Muayene Bekliyor': '#FFA07A',  # Açık mercan
-    'Teşhis Konuldu': '#DDA0DD',    # Açık mor
-    'Tedaviye Başlandı': '#87CEEB',  # Açık mavi
-    'İyileşme Sürecinde': '#90EE90', # Açık yeşil
-    'Kontrol Zamanı': '#FFB6C1',     # Açık pembe
-    'Tedavi Tamamlandı': '#98FB98',  # Açık yeşil
-    'Acil Durum': '#FF6B6B',         # Kırmızı
-}
-
-DURUM_ILERLEME = {
-        'Muayene Bekliyor': 0,
-        'Teşhis Konuldu': 20,
-        'Tedaviye Başlandı': 40,
-        'İyileşme Sürecinde': 60,
-        'Kontrol Zamanı': 80,
-        'Tedavi Tamamlandı': 100,
-        'Acil Durum': 100
-}
+DURUM_ILERLEME = {'Muayene Bekliyor': 0, 'Teşhis Konuldu': 20, 'Tedaviye Başlandı': 40, 'İyileşme Sürecinde': 60, 'Kontrol Zamanı': 80, 'Tedavi Tamamlandı': 100, 'Acil Durum': 100}
 
 
 class DurumTakipWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.sonraki_durum = None
+        self.onceki_durum = None
+        self.ilerleme_bar = None
+        self.renk_gosterge = None
+        self.ilerleme_label = None
+        self.durum_combo = None
+        self.durum_label = None
         self.setup_ui()
 
     def setup_ui(self):
@@ -118,50 +114,10 @@ class DurumTakipWidget(QWidget):
 
     def get_durum(self):
         """Mevcut durumu döndür"""
-        return {
-            'durum': self.durum_combo.currentText(),
-            'ilerleme': self.ilerleme_bar.value()
-        }
+        return {'durum': self.durum_combo.currentText(), 'ilerleme': self.ilerleme_bar.value()}
 
     def set_durum(self, durum, ilerleme):
         """Durumu ve ilerlemeyi ayarla"""
         if durum in DURUM_RENKLERI:
             self.durum_combo.setCurrentText(durum)
         self.ilerleme_bar.setValue(ilerleme)
-
-    def durum_degisti(self, yeni_durum):
-        """Durum değiştiğinde renk göstergesini ve ilerlemeyi güncelle"""
-        renk = DURUM_RENKLERI[yeni_durum]
-        self.renk_gosterge.setStyleSheet(f"""
-            background-color: {renk};
-            border-radius: 10px;
-            border: 1px solid #666;
-        """)
-
-        # İlerleme çubuğunu güncelle
-        ilerleme = DURUM_ILERLEME[yeni_durum]
-        self.ilerleme_bar.setValue(ilerleme)
-
-        # İlerleme çubuğunun rengini güncelle
-        self.ilerleme_bar.setStyleSheet(f"""
-            QProgressBar {{
-                border: 1px solid #d4c6e6;
-                border-radius: 4px;
-                text-align: center;
-            }}
-            QProgressBar::chunk {{
-                background-color: {renk};
-            }}
-        """)
-
-    def onceki_duruma_gec(self):
-        """Bir önceki duruma geç"""
-        current_idx = self.durum_combo.currentIndex()
-        if current_idx > 0:
-            self.durum_combo.setCurrentIndex(current_idx - 1)
-
-    def sonraki_duruma_gec(self):
-        """Bir sonraki duruma geç"""
-        current_idx = self.durum_combo.currentIndex()
-        if current_idx < self.durum_combo.count() - 1:
-            self.durum_combo.setCurrentIndex(current_idx + 1)
