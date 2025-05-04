@@ -706,7 +706,7 @@ class Database:
             print(f"Profil bilgilerini getirme hatası: {e}")
             return None
 
-    def add_pets(self, user_id, pet_data):
+    def add_pet(self, user_id, pet_data):
         """Kullanıcıya yeni hayvan ekler"""
         try:
             conn = sqlite3.connect(str(self.db_file))
@@ -715,10 +715,89 @@ class Database:
             cursor.execute('''
                            INSERT INTO pets (hayvan_adi, tur, cins, cinsiyet, yas, ekleyen_id)
                            VALUES (?, ?, ?, ?, ?, ?)
-                           ''', (pet_data['name'], pet_data['tur'], pet_data['cins'], pet['cinsiyet'], pet['yas'], user_id))
+                           ''', (pet_data['hayvan_adi'], pet_data['tur'], pet_data['cins'], pet_data['cinsiyet'], pet_data['yas'], user_id))
             conn.commit()
             conn.close()
             return True
         except Exception as e:
             print(f"Hayvan ekleme hatası: {e}")
+            return False
+
+    def get_pets(self, user_id):
+        """Kullanıcıya ait hayvanları getirir"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                           SELECT id, hayvan_adi, tur, cins, cinsiyet, yas
+                           FROM pets
+                           WHERE ekleyen_id = ?
+                           ''', (user_id,))
+
+            pets = cursor.fetchall()
+            conn.close()
+            return pets
+        except Exception as e:
+            print(f"Hayvanları getirme hatası: {e}")
+            return None
+
+    def get_pet(self, pet_id):
+        """Hayvan kaydını getirir"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                           SELECT hayvan_adi, tur, cins, cinsiyet, yas, id
+                           FROM pets
+                           WHERE id = ?
+                           ''', (pet_id,))
+
+            pet = cursor.fetchone()
+            conn.close()
+            return pet
+
+        except Exception as e:
+            print(f"Hayvan bilgilerini getirme hatası: {e}")
+            return None
+
+    def delete_pet(self, pet_id):
+        """Hayvan kaydını siler"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            cursor.execute('DELETE FROM pets WHERE id = ?', (pet_id,))
+
+            conn.commit()
+            conn.close()
+            return True
+
+        except Exception as e:
+            print(f"Hayvan silme hatası: {e}")
+            return False
+
+    def update_pet(self, pet_id, data):
+        """Hayvan kaydını günceller"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                           UPDATE pets
+                           SET hayvan_adi = ?,
+                               tur        = ?,
+                               cins       = ?,
+                               cinsiyet   = ?,
+                               yas        = ?
+                           WHERE id = ?
+                           ''', (data['hayvan_adi'], data['tur'], data['cins'], data['cinsiyet'], data['yas'], pet_id))
+
+            conn.commit()
+            conn.close()
+            return True
+
+        except Exception as e:
+            print(f"Hayvan güncelleme hatası: {e}")
             return False
