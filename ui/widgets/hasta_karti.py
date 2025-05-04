@@ -78,7 +78,7 @@ class HastaKartiWidget(QWidget):
         """Handle muayene button click"""
         main_window = self.get_main_window()
         if main_window:
-            main_window.muayeneye_al(self.hasta_id)
+            main_window.take_treatment(self.hasta_id)
 
     def detay_goster_clicked(self):
         """Handle detay button click"""

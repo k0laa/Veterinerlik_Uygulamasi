@@ -58,9 +58,9 @@ def setup_ui(window):
     window.stacked_widget.setCurrentIndex(1)
 
     window.raporlar_action.triggered.connect(lambda: switch_to_tab(0))
-    window.raporlar_action.triggered.connect(window.refresh_rapor)
+    window.raporlar_action.triggered.connect(window.refresh_raporlar_tab)
     window.bekleyen_action.triggered.connect(lambda: switch_to_tab(1))
-    window.bekleyen_action.triggered.connect(window.refresh_bekleyen_hastalar)
+    window.bekleyen_action.triggered.connect(window.refresh_bekleyen_hastalar_tab)
 
     # Buton tıklama olaylarını bağla
     def switch_to_tab(index):

@@ -86,8 +86,3 @@ class FormElementsWidget(QWidget):
         self.elements['aciklama_text'].setMaximumHeight(100)
         layout.addWidget(aciklama_label)
         layout.addWidget(self.elements['aciklama_text'])
-
-def create_form_elements():
-    """Form elemanlarını oluşturur ve döndürür"""
-    widget = FormElementsWidget()
-    return widget.elements

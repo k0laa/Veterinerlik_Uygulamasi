@@ -5,6 +5,9 @@ from ui.oppointment_window_ui import setup_ui
 class OppointmentWindow(QMainWindow):
     def __init__(self, db, user_data, hasta_id, main_window):
         super().__init__()
+        self.ilac_listesi = None
+        self.durum_takip = None
+        self.form_elements = None
         self.db = db
         self.user_data = user_data
         self.registration_successful = False
@@ -148,6 +151,6 @@ class OppointmentWindow(QMainWindow):
         QMessageBox.information(self, "Bilgi", "Kayıt düzenleme moduna geçildi. Değişiklikleri yaptıktan sonra 'Kaydet' butonuna tıklayın.")
 
     def close_win(self):
-        self.main_window.refresh_bekleyen_hastalar()
-        self.main_window.refresh_data()
+        self.main_window.refresh_bekleyen_hastalar_tab()
+        self.main_window.refresh_all_data()
         self.close()

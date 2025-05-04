@@ -29,7 +29,7 @@ def setup_bekleyen_hastalar_tab(window, tab):
     scroll.setWidget(content_widget)
 
     # İlk yükleme
-    window.refresh_bekleyen_hastalar()
+    window.refresh_bekleyen_hastalar_tab()
 
     layout = QVBoxLayout()
     tab.setLayout(layout)
@@ -39,4 +39,4 @@ def setup_bekleyen_hastalar_tab(window, tab):
 
     layout.addWidget(scroll)
 
-    yeni_kayit_btn.clicked.connect(lambda: window.yeni_kayit_ekle())
+    yeni_kayit_btn.clicked.connect(lambda: window.new_appointment())

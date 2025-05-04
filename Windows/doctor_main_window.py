@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QTableWidgetItem, QLabel
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDate, QTime
 from ui.doctor_main_window_ui import setup_ui
 from ui.styles import DOCTOR_STYLE_INFO
 from ui.widgets.hasta_karti import HastaKartiWidget
@@ -26,13 +26,13 @@ class DoctorWindow(QMainWindow):
         setup_ui(self)
 
         # Başlangıçta verileri yükle
-        self.refresh_data()  #
+        self.refresh_all_data()
 
-    def refresh_data(self):
-        self.refresh_rapor()
-        self.refresh_bekleyen_hastalar()
+    def refresh_all_data(self):
+        self.refresh_raporlar_tab()
+        self.refresh_bekleyen_hastalar_tab()
 
-    def refresh_rapor(self):
+    def refresh_raporlar_tab(self):
         """Rapor tablosunu ve istatistikleri günceller"""
         if hasattr(self, 'rapor_table'):
             records = self.database.get_all_patients()
@@ -58,7 +58,7 @@ class DoctorWindow(QMainWindow):
                 self.stat_cards['total_patients'].findChild(QLabel, "value_label").setText(str(stats['total']))
                 self.stat_cards['treatment_success'].findChild(QLabel, "value_label").setText(f"{stats['success_rate']:.1f}%")
 
-    def refresh_bekleyen_hastalar(self):
+    def refresh_bekleyen_hastalar_tab(self):
         """Bekleyen hastaları günceller"""
         try:
             if not hasattr(self, 'bekleyen_content'):
@@ -112,7 +112,7 @@ class DoctorWindow(QMainWindow):
             # Eğer kullanıcı "Evet" derse kaydı sil
             if reply == QMessageBox.Yes:
                 if self.database.delete_patient(record_id):
-                    self.refresh_data()
+                    self.refresh_all_data()
                     QMessageBox.information(self, "Başarılı", "Kayıt başarıyla silindi!")
                 else:
                     QMessageBox.critical(self, "Hata", "Kayıt silinirken bir hata oluştu!")
@@ -152,3 +152,65 @@ class DoctorWindow(QMainWindow):
 
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Kayıt düzenleme hatası: {str(e)}")
+
+    def take_treatment(self, hasta_id):
+        try:
+            hasta = self.database.muayeneye_al(hasta_id)
+            if hasta:
+                self.oppointment_window = OppointmentWindow(self.database, self.user_data, hasta_id, self)
+                self.oppointment_window.durum_takip.sonraki_duruma_gec()
+                self.oppointment_window.show()
+
+            else:
+                QMessageBox.warning(self, "Hata", "Hasta muayeneye alınamadı.")
+
+        except Exception as e:
+            print(f"Muayeneye alma hatası: {str(e)}")
+            QMessageBox.critical(self, "Hata", f"Muayeneye alma işlemi sırasında hata: {str(e)}")
+
+    def add_appointment(self):
+        """Randevu ekler"""
+        try:
+            # Form verilerini al
+            hasta_index = self.randevu_elements['hasta_combo'].currentIndex()
+            hasta_id = self.randevu_elements['hasta_combo'].itemData(hasta_index)
+            tarih = self.randevu_elements['tarih'].date().toString("yyyy-MM-dd")
+            saat = self.randevu_elements['saat'].time().toString("HH:mm")
+            tip = self.randevu_elements['tip'].currentText()
+            notlar = self.randevu_elements['not'].text()
+
+            # Hasta seçilip seçilmediğini kontrol et
+            if hasta_id is None:
+                QMessageBox.warning(self, "Uyarı", "Lütfen bir hasta seçin!")
+                return
+
+            data = {'hasta_id': hasta_id, 'tarih': tarih, 'saat': saat, 'tip': tip, 'not': notlar, 'durum': 'Bekliyor'}
+
+            # Veritabanına kaydet ve tabloyu güncelle
+            if self.database.add_appointment(data):
+                self.clear_appointment_form()
+                QMessageBox.information(self, "Başarılı", "Randevu başarıyla eklendi!")
+            else:
+                QMessageBox.critical(self, "Hata", "Randevu eklenirken bir hata oluştu!")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Hata", f"Randevu eklerken bir hata oluştu: {str(e)}")
+
+    def new_appointment(self):
+        """Yeni kayıt eklemek için muayene penceresini açar"""
+        try:
+            self.oppointment_window = OppointmentWindow(self.database, self.user_data, None, self)
+            self.oppointment_window.show()
+        except Exception as e:
+            QMessageBox.critical(self, "Hata", f"Yeni kayıt penceresi açılırken hata: {str(e)}")
+
+    def clear_appointment_form(self):
+        """Randevu formunu temizler"""
+        try:
+            self.randevu_elements['hasta_combo'].setCurrentIndex(0)
+            self.randevu_elements['tarih'].setDate(QDate.currentDate())
+            self.randevu_elements['saat'].setTime(QTime(9, 0))
+            self.randevu_elements['tip'].setCurrentIndex(0)
+            self.randevu_elements['not'].clear()
+        except Exception as e:
+            QMessageBox.critical(self, "Hata", f"Randevu formu temizlenirken hata: {str(e)}")
