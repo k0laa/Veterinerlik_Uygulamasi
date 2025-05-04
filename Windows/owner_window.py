@@ -1,9 +1,10 @@
 import hashlib
-
-from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QMessageBox, QLineEdit
-
-from ui.styles import SAVE_BTN_STYLE, EDIT_BTN_STYLE
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QMessageBox, QLineEdit, QLabel, QGridLayout, QWidget
+from ui.styles import SAVE_BTN_STYLE, EDIT_BTN_STYLE, DOCTOR_STYLE_INFO
+from ui.widgets.hayvan_karti import HayvanKartiWidget
 from ui.windows.owner_window_ui import setup_ui
+from Windows.add_pet_window import AddPetWindow
 
 
 class PatientOwnerWindow(QMainWindow):
@@ -11,6 +12,10 @@ class PatientOwnerWindow(QMainWindow):
         super().__init__()
 
         # Daha sonra kullanılacak olan UI bileşenlerini tanımlama
+        self.pets_tab = None
+        self.hayvan_main_layout = None
+        self.add_pet_window = None
+        self.hayvan_kart_layout = None
         self.cancel_button = None
         self.edit_button = None
         self.show_password_button = None
@@ -129,38 +134,47 @@ class PatientOwnerWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Bir hata oluştu: {str(e)}")
 
-    def refresh_pets(self):
-
-        """Kullanıcının hayvanlarını yükler ve tabloya yerleştirir"""
-        pets = self.db.get_user_pets(self.user_data['id'])
-        if pets:
-            self.pets_table.setRowCount(len(pets))
-            for i, pet in enumerate(pets):
-                self.pets_table.setItem(i, 0, QTableWidgetItem(pet['name']))
-                self.pets_table.setItem(i, 1, QTableWidgetItem(pet['type']))
-                self.pets_table.setItem(i, 2, QTableWidgetItem(pet['breed']))
-                self.pets_table.setItem(i, 3, QTableWidgetItem(str(pet['age'])))
-        else:
-            print("Hayvan bilgileri yüklenemedi.")
-            self.pets_table.setRowCount(0)
-            self.pets_table.setColumnCount(4)
-            self.pets_table.setHorizontalHeaderLabels(["Ad", "Tür", "Cins", "Yaş"])
-
     def load_pets(self):
         """Kullanıcının hayvanlarını yükler ve tabloya yerleştirir"""
-        pets = self.db.get_user_pets(self.user_data['id'])
+        # Mevcut kartları temizle
+        if hasattr(self, 'hayvan_kart_layout'):
+            while self.hayvan_kart_layout.count():
+                child = self.hayvan_kart_layout.takeAt(0)
+                if child.widget():
+                    child.widget().deleteLater()
+
+        pets = self.db.get_pets(self.user_data['id'])
         if pets:
-            self.pets_table.setRowCount(len(pets))
-            for i, pet in enumerate(pets):
-                self.pets_table.setItem(i, 0, QTableWidgetItem(pet['name']))
-                self.pets_table.setItem(i, 1, QTableWidgetItem(pet['type']))
-                self.pets_table.setItem(i, 2, QTableWidgetItem(pet['breed']))
-                self.pets_table.setItem(i, 3, QTableWidgetItem(str(pet['age'])))
+            for i, hayvan_data in enumerate(pets):
+                hayvan_karti = HayvanKartiWidget(hayvan_data)
+                y = i // 3
+                self.hayvan_kart_layout.addWidget(hayvan_karti, y, i % 3, alignment=Qt.AlignLeft)
+                hayvan_karti.delete_btn.clicked.connect(lambda a: self.delete_pet(hayvan_karti.pet_id))
+                hayvan_karti.edit_btn.clicked.connect(lambda a: self.edit_pets(hayvan_karti.pet_id))
         else:
-            print("Hayvan bilgileri yüklenemedi.")
-            self.pets_table.setRowCount(0)
-            self.pets_table.setColumnCount(4)
-            self.pets_table.setHorizontalHeaderLabels(["Ad", "Tür", "Cins", "Yaş"])
+            no_patient_label = QLabel("Hayvanınız bulunmamaktadır.")
+            no_patient_label.setObjectName("info")
+            no_patient_label.setStyleSheet(DOCTOR_STYLE_INFO)
+            no_patient_label.setAlignment(Qt.AlignCenter)
+            self.hayvan_kart_layout.addWidget(no_patient_label)
+
+    def edit_pets(self, pet_id):
+        """Hayvanları düzenlemek için pencere açar"""
+        pet = self.db.get_pet(pet_id)
+        self.add_pet_window = AddPetWindow(self.db, pet, self.user_data['id'])  # Referansı sakla
+        self.add_pet_window.show()
+        self.add_pet_window.closeEvent = lambda event: self.load_pets()
+
+    def add_new_pet(self):
+        """Yeni bir hayvan eklemek için pencere açar"""
+        self.add_pet_window = AddPetWindow(self.db, None, self.user_data['id'])  # Referansı sakla
+        self.add_pet_window.show()
+        self.add_pet_window.closeEvent = lambda event: self.load_pets()
+
+    def delete_pet(self, pet_id):
+        """Seçilen hayvanı siler"""
+        self.db.delete_pet(pet_id)
+        self.load_pets()  # Hayvan silindikten sonra tabloyu güncelle
 
     def load_appointments(self):
 
@@ -179,13 +193,6 @@ class PatientOwnerWindow(QMainWindow):
             self.appointments_table.setColumnCount(4)
             self.appointments_table.setHorizontalHeaderLabels(["Tarih", "Saat", "Veteriner", "Durum"])
 
-    def add_new_pet(self):
-        """Yeni bir hayvan eklemek için pencere açar"""
-        from Windows.add_pet_window import AddPetWindow
-        self.add_pet_window = AddPetWindow(self.db, self.user_data)  # Referansı sakla
-        self.add_pet_window.show()
-        #self.load_pets()  # Hayvan eklendikten sonra tabloyu güncelle
-
     def add_appointment(self):
         """Yeni bir randevu almak için pencere açar"""
         from Windows.add_appointment_window import AddAppointmentWindow
@@ -193,25 +200,11 @@ class PatientOwnerWindow(QMainWindow):
         add_appointment_window.exec_()
         self.load_appointments()  # Randevu alındıktan sonra tabloyu güncelle
 
-    def delete_pet(self):
-        """Seçilen hayvanı siler"""
-        selected_row = self.pets_table.currentRow()
-        if selected_row >= 0:
-            pet_name = self.pets_table.item(selected_row, 0).text()
-            self.db.delete_pet(pet_name)
-            self.load_pets()
-        else:
-            print("Silinecek hayvan seçilmedi.")
-
     def update_pet(self):
         """Seçilen hayvanı günceller"""
         selected_row = self.pets_table.currentRow()
         if selected_row >= 0:
-            pet_name = self.pets_table.item(selected_row, 0).text()
-            from Windows.update_pet_window import UpdatePetWindow
-            update_pet_window = UpdatePetWindow(self.db, pet_name)
-            update_pet_window.exec_()
-            self.load_pets()
+            pet_name = self.pets_table.item(selected_row, 0).text()  # from Windows.update_pet_window import UpdatePetWindow  # update_pet_window = UpdatePetWindow(self.db, pet_name)  # update_pet_window.exec_()  # self.load_pets()
         else:
             print("Güncellenecek hayvan seçilmedi.")
 
@@ -267,7 +260,3 @@ class PatientOwnerWindow(QMainWindow):
         self.edit_button.setText("Düzenle")
         self.edit_button.setStyleSheet(EDIT_BTN_STYLE)
         self.cancel_button.setVisible(False)
-
-
-
-

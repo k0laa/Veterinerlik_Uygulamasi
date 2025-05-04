@@ -24,8 +24,8 @@ def setup_ui(window):
     setup_profile_tab(window, profile_tab)
 
     # Hayvanlarım sekmesi
-    pets_tab = QWidget()
-    setup_hayvanlarim_tab(window, pets_tab)
+    window.pets_tab = QWidget()
+    setup_hayvanlarim_tab(window, window.pets_tab)
 
     # Randevularım sekmesi
     appointments_tab = QWidget()
@@ -45,7 +45,7 @@ def setup_ui(window):
 
     # Sekmeleri stacked widget'a ekle
     window.stacked_widget.addWidget(profile_tab)
-    window.stacked_widget.addWidget(pets_tab)
+    window.stacked_widget.addWidget(window.pets_tab)
 
     window.stacked_widget.addWidget(appointments_tab)
 
@@ -67,5 +67,8 @@ def setup_ui(window):
         window.pets_action.setChecked(index == 1)
         window.appointments_action.setChecked(index == 2)
         window.stacked_widget.setCurrentIndex(index)
+
+        if index == 1:
+            window.load_pets()
 
     switch_to_tab(1)
