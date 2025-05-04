@@ -6,6 +6,14 @@ from ui.styles import INPUT_STYLE, BUTTON_STYLE, MAIN_STYLE, RADIO_STYLE
 
 
 def setup_ui(window):
+    """Hayvan ekleme penceresini oluşturur."""
+
+    # Pencere ayarları
+    window.setWindowTitle("Hayvan Ekle")
+    window.setGeometry(100, 100, 400, 300)
+    window.setWindowIcon(QIcon("resources/icons/app_icon.png"))
+
+
     # Ana widget ve layout
     central_widget = QWidget(window)
     window.setCentralWidget(central_widget)
