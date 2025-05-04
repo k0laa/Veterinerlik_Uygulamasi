@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QListWidget
-from ..styles import LIST_STYLE
+from ui.styles import LIST_STYLE
 
 def create_ilac_listesi():
     """İlaç listesi widget'ını oluşturur"""
@@ -17,4 +17,4 @@ def create_ilac_listesi():
     ])
     ilac_listesi.setSelectionMode(QListWidget.MultiSelection)
     ilac_listesi.setStyleSheet(LIST_STYLE)
-    return ilac_listesi 
+    return ilac_listesi
