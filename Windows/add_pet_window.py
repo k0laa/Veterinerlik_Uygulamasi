@@ -1,71 +1,55 @@
-from PyQt5.QtWidgets import QMainWindow, QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from ui.windows.add_pet_window_ui import setup_ui
 
 
 class AddPetWindow(QMainWindow):
-    def __init__(self, database, user_data):
+    def __init__(self, database, pet_data, user_id):
         super().__init__()
+        self.yas_spinbox = None
+        self.disi_radio = None
+        self.tur_combo = None
+        self.erkek_radio = None
+        self.cins_input = None
+        self.ad_input = None
         self.database = database
-        self.user_data = user_data
-        self.setWindowTitle("Hayvan Ekle")
-        self.setGeometry(100, 100, 400, 300)
+        self.pet_data = pet_data
+        self.user_id = user_id
 
         self.setup_ui()
 
     def setup_ui(self):
         setup_ui(self)
+        self.getData()
+
+    def getData(self):
+        """Hayvan bilgilerini veritabanından alır ve form alanlarını doldurur."""
+        if self.pet_data:
+            # Form alanlarını doldur
+            self.ad_input.setText(self.pet_data[0])
+            self.cins_input.setText(self.pet_data[2])
+            self.tur_combo.setCurrentText(self.pet_data[1])
+            self.erkek_radio.setChecked(self.pet_data[3] == "Erkek")
+            self.disi_radio.setChecked(self.pet_data[3] == "Dişi")
+            self.yas_spinbox.setValue(self.pet_data[4])
+        else:
+            print("Hayvan bilgileri alınamadı.")
 
     def save_pet(self):
         try:
             # Kullanıcıdan alınan bilgileri al
-            ad = self.ad_input.text()
-            cins = self.cins_input.text()
-            tur = self.tur_combo.currentText()
-            cinsiyet = "Erkek" if self.erkek_radio.isChecked() else "Dişi"
-            yas = self.yas_spinbox.value()
+            new_pet_data = {'hayvan_adi': self.ad_input.text(), 'tur': self.tur_combo.currentText(), 'cins': self.cins_input.text(), 'cinsiyet': "Erkek" if self.erkek_radio.isChecked() else "Dişi", 'yas': self.yas_spinbox.value()}
 
-            # Bilgileri kontrol et ve kaydet
-            print(f"Hayvan Bilgileri: Ad={ad}, Cins={cins}, Tür={tur}, Cinsiyet={cinsiyet}, Yaş={yas}")
-            # Burada veritabanına kaydetme işlemi yapılabilir
+            # Veritabanına ekle
+            if self.pet_data:
+                self.database.update_pet(self.pet_data[5], new_pet_data)
+            else:
+                self.database.add_pet(self.user_id, new_pet_data)
+            QMessageBox.information(self, "Başarılı", "Hayvan kaydı başarıyla eklendi.")
+            self.close()
 
-            # Başarılı mesajı
-            print("Hayvan başarıyla kaydedildi!")
         except Exception as e:
             print(f"Hata oluştu: {e}")
-
-    def manage_pets(self):
-        """Petleri yönetmek için bir pencere açar."""
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Petleri Yönet")
-        dialog.setGeometry(150, 150, 600, 400)
-
-        layout = QVBoxLayout(dialog)
-
-        # Pet tablosu
-        pet_table = QTableWidget()
-        pet_table.setColumnCount(4)
-        pet_table.setHorizontalHeaderLabels(["Ad", "Tür", "Cins", "Yaş"])
-        pets = self.database.get_user_pets(self.user_data['id'])
-        pet_table.setRowCount(len(pets))
-        for i, pet in enumerate(pets):
-            pet_table.setItem(i, 0, QTableWidgetItem(pet['name']))
-            pet_table.setItem(i, 1, QTableWidgetItem(pet['type']))
-            pet_table.setItem(i, 2, QTableWidgetItem(pet['breed']))
-            pet_table.setItem(i, 3, QTableWidgetItem(str(pet['age'])))
-        layout.addWidget(pet_table)
-
-        # Düğmeler
-        button_layout = QHBoxLayout()
-        delete_button = QPushButton("Sil")
-        delete_button.clicked.connect(lambda: self.delete_pet(pet_table))
-        update_button = QPushButton("Güncelle")
-        update_button.clicked.connect(lambda: self.update_pet(pet_table))
-        button_layout.addWidget(delete_button)
-        button_layout.addWidget(update_button)
-        layout.addLayout(button_layout)
-
-        dialog.setLayout(layout)
-        dialog.exec_()
+            QMessageBox.warning(self, "Hata", "Hayvan kaydı eklenemedi.")
 
     def delete_pet(self, pet_table):
         """Seçilen peti siler."""
