@@ -5,13 +5,16 @@ from ui.windows.appointment_window_ui import setup_ui
 class OppointmentWindow(QMainWindow):
     def __init__(self, db, user_data, hasta_id, main_window):
         super().__init__()
+
+        # daha sonra kullanılacak olan değişkenler
         self.ilac_listesi = None
         self.durum_takip = None
         self.form_elements = None
+
         self.db = db
         self.user_data = user_data
-        self.registration_successful = False
         self.hasta_id = hasta_id
+        self.registration_successful = False
         self.main_window = main_window
 
         self.setup_ui()
@@ -21,6 +24,7 @@ class OppointmentWindow(QMainWindow):
         self.get_data()
 
     def get_data(self):
+        """ Hasta bilgilerini veritabanından alır ve form alanlarını doldurur """
         if self.hasta_id:
             hasta = self.db.muayeneye_al(self.hasta_id)
             if hasta:
@@ -35,11 +39,9 @@ class OppointmentWindow(QMainWindow):
                 self.form_elements['sikayet_text'].setText(hasta[6])
                 self.form_elements['aciklama_text'].setText(hasta[7])
 
-                # Update status
+                # durumu ve ilerlemeyi ayarla
                 if hasta[9] == "Muayene Bekliyor":
                     self.durum_takip.set_durum("Teşhis Konuldu", 20)
-
-                print(hasta)
 
             else:
                 QMessageBox.warning(self, "Hata", "Hasta muayeneye alınamadı.")
@@ -110,11 +112,9 @@ class OppointmentWindow(QMainWindow):
                 message = "Yeni kayıt başarıyla eklendi."
 
             if success:
-                # self.clear_form()
                 QMessageBox.information(self, "Başarılı", message)
             else:
                 QMessageBox.warning(self, "Hata", "Kayıt işlemi başarısız oldu!")
-
 
             self.close_win()
 
@@ -122,34 +122,7 @@ class OppointmentWindow(QMainWindow):
             print(f"Kayıt işlemi sırasında hata: {str(e)}")  # Hata ayıklama için
             QMessageBox.critical(self, "Hata", f"Kayıt işlemi sırasında bir hata oluştu: {str(e)}")
 
-    # def clear_form(self):
-    #     """Form alanlarını temizler"""
-    #     try:
-    #         # Form elemanlarını temizle
-    #         self.form_elements['ad_input'].clear()
-    #         self.form_elements['sahip_input'].clear()
-    #         self.form_elements['tur_combo'].setCurrentIndex(0)
-    #         self.form_elements['cins_input'].clear()
-    #         self.form_elements['erkek_radio'].setChecked(True)
-    #         self.form_elements['yas_spinbox'].setValue(0)
-    #         self.form_elements['sikayet_text'].clear()
-    #         self.form_elements['aciklama_text'].clear()
-    #
-    #         # İlaç listesindeki seçimleri kaldır
-    #         for i in range(self.ilac_listesi.count()):
-    #             self.ilac_listesi.item(i).setSelected(False)
-    #
-    #         # Durum ve ilerlemeyi sıfırla
-    #         self.durum_takip.durum_combo.setCurrentIndex(0)
-    #         self.durum_takip.ilerleme_bar.setValue(0)
-    #
-    #         # Düzenleme modunu sıfırla
-    #         self.current_edit_id = None
-    #
-    #     except Exception as e:
-    #         QMessageBox.critical(self, "Hata", f"Form temizleme hatası: {str(e)}")
-
-    def edit_record(self):
+    def edit_record_warn(self):
         QMessageBox.information(self, "Bilgi", "Kayıt düzenleme moduna geçildi. Değişiklikleri yaptıktan sonra 'Kaydet' butonuna tıklayın.")
 
     def close_win(self):
