@@ -1,44 +1,41 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QVBoxLayout, QTableWidget, QPushButton, QHBoxLayout
-
-from ui.styles import TABLE_STYLE, BUTTON_STYLE
+from PyQt5.QtWidgets import QGridLayout, QVBoxLayout, QPushButton
+from ui.styles import NEW_BUTTON_STYLE
+from ui.widgets.hayvan_karti import HayvanKartiWidget
 
 
 def setup_hayvanlarim_tab(window, tab):
     """Hayvanlarım sekmesini oluşturur"""
-    layout = QVBoxLayout(tab)
-
-    # Tablo oluştur
-    window.pets_table = QTableWidget()
-    window.pets_table.setColumnCount(4)
-    window.pets_table.setHorizontalHeaderLabels(["Hayvan Adı", "Tür", "Cins", "Yaş"])
-    window.pets_table.horizontalHeader().setStretchLastSection(True)
-    window.pets_table.setStyleSheet(TABLE_STYLE)
-
-    # Buton container
-    button_container = QHBoxLayout()
-    button_container.setAlignment(Qt.AlignRight)
+    main_layout = QVBoxLayout(tab)
 
     # Yeni hayvan ekle butonu
     add_pet_btn = QPushButton("Yeni Hayvan Ekle")
-    add_pet_btn.setStyleSheet("""
-        QPushButton {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        QPushButton:hover {
-            background-color: #45a049;
-        }
-    """)
+    add_pet_btn.setStyleSheet(NEW_BUTTON_STYLE)
+    add_pet_btn.setFixedSize(150, 35)
+
+    layout = QGridLayout(tab)
+    # Hayvan kartı oluşturma
+    def create_hayvan_karti(hayvan_data):
+        hayvan_karti = HayvanKartiWidget(hayvan_data)
+        return hayvan_karti
+    # Hayvan kartlarını oluştur
+    hayvan_data_list = [("Milo", "Kedi", "British Shorthair", "Erkek", 3),
+                        ("Luna", "Köpek", "Siyam", "Dişi", 2),
+                        ("Luna", "Kedi", "Siyam", "Dişi", 2),
+                        ("Luna", "Kedi", "Siyam", "Dişi", 2),
+                        ("Luna", "Kedi", "Siyam", "Dişi", 2),
+                        ("Luna", "Kedi", "Siyam", "Dişi", 2),
+                        ("Luna", "Kedi", "Siyam", "Dişi", 2),
+                        ("Luna", "Kedi", "Siyam", "Dişi", 2),
+                        ]
+
+    for i, hayvan_data in enumerate(hayvan_data_list):
+        hayvan_karti = create_hayvan_karti(hayvan_data)
+        y = i // 3
+        layout.addWidget(hayvan_karti, y, i % 3)
+
+    main_layout.addWidget(add_pet_btn, alignment=Qt.AlignRight)
+    main_layout.addLayout(layout)
+    main_layout.addStretch()
+
     add_pet_btn.clicked.connect(window.add_new_pet)
-    button_container.addWidget(add_pet_btn)
-
-    layout.addLayout(button_container)
-    layout.addWidget(window.pets_table)
-
-    # Tabloyu güncelle
-    window.refresh_pets()
