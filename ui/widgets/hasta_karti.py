@@ -11,8 +11,6 @@ class HastaKartiWidget(QWidget):
 
     def setup_ui(self, hasta_data):
         layout = QVBoxLayout(self)
-        
-        # Önce varsayılan stili uygula
         self.setStyleSheet(GROUP_STYLE)
         
         # Hasta durumu acil ise
@@ -20,7 +18,6 @@ class HastaKartiWidget(QWidget):
             acil_label = QLabel("⚠️ ACİL DURUM")
             acil_label.setStyleSheet("color: #cc0000; font-weight: bold; font-size: 14px;")
             layout.addWidget(acil_label)
-            # Acil durumu stilini uygula
             self.setStyleSheet(ACIL_STYLE)
 
         # Üst kısım - Hasta bilgileri
@@ -53,20 +50,14 @@ class HastaKartiWidget(QWidget):
 
         muayene_btn = QPushButton("Muayeneye Al")
         muayene_btn.setStyleSheet(BUTTON_STYLE)
-        # Store the patient ID and connect to main window's method
         self.hasta_id = self.hasta_data[0]
         muayene_btn.clicked.connect(self.muayeneye_al_clicked)
 
-        # detay_btn = QPushButton("Detayları Göster")
-        # detay_btn.setStyleSheet(BUTTON_STYLE)
-        # detay_btn.clicked.connect(self.detay_goster_clicked)
-
         button_layout.addWidget(muayene_btn)
-        # button_layout.addWidget(detay_btn)
         layout.addLayout(button_layout)
 
     def get_main_window(self):
-        """Get reference to main window"""
+        """ doctor main windowu al """
         parent = self.parent()
         while parent is not None:
             if isinstance(parent, QMainWindow):
@@ -75,13 +66,7 @@ class HastaKartiWidget(QWidget):
         return None
 
     def muayeneye_al_clicked(self):
-        """Handle muayene button click"""
+        """ muayeneye al butonuna tıklandığında çağrılır """
         main_window = self.get_main_window()
         if main_window:
             main_window.take_treatment(self.hasta_id)
-
-    def detay_goster_clicked(self):
-        """Handle detay button click"""
-        main_window = self.get_main_window()
-        if main_window:
-            main_window.detay_goster(self.hasta_id)
