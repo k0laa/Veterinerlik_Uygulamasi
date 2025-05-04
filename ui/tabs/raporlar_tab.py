@@ -90,5 +90,5 @@ def setup_raporlar_tab(window, tab):
     # Sinyal bağlantıları
     window.search_input.textChanged.connect(window.filter_reports)
     window.delete_button.clicked.connect(window.delete_record)
-    window.edit_button.clicked.connect(window.edit_record_warn)
+    window.edit_button.clicked.connect(window.edit_record)
 

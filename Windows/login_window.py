@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QLineEdit, )
-from ui.windows.login_window_ui import setup_ui
+from ui.windows.login_window_ui_3 import setup_ui
 from ui.styles import LOGIN_STYLE, BUTTON_STYLE_LOGIN
 from Windows.signup_window import SignupWindow
 
@@ -40,7 +40,7 @@ class LoginWindow(QMainWindow):
             if username == "admin" and password == "admin":
                 self.role_type = "admin"
             if username == "123" and password == "123":
-                self.role_type = "admin"
+                self.role_type = "owner"
 
             # Veritabanından doğrulama yapma
             result = self.db.login(username, password, self.role_type)
@@ -65,7 +65,7 @@ class LoginWindow(QMainWindow):
                 self.close()
                 self.doctor_window.show()
             elif self.user_data['rol'] == 'owner':
-                from Windows.owner_window_2 import PatientOwnerWindow
+                from Windows.owner_window import PatientOwnerWindow
                 self.patient_window = PatientOwnerWindow(self.db, self.user_data)
                 self.close()
                 self.patient_window.show()

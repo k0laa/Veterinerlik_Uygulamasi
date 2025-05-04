@@ -42,6 +42,8 @@ class OppointmentWindow(QMainWindow):
                 # durumu ve ilerlemeyi ayarla
                 if hasta[9] == "Muayene Bekliyor":
                     self.durum_takip.set_durum("Teşhis Konuldu", 20)
+                else:
+                    self.durum_takip.set_durum(hasta[9], hasta[10])
 
             else:
                 QMessageBox.warning(self, "Hata", "Hasta muayeneye alınamadı.")
