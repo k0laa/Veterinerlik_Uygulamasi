@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem
 
-from ui.owner_window_ui_2 import setup_ui
+from ui.windows.owner_window_ui_2 import setup_ui
 
 
 class PatientOwnerWindow(QMainWindow):

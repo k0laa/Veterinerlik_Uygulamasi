@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
-from ui.oppointment_window_ui import setup_ui
+from ui.windows.appointment_window_ui import setup_ui
 
 
 class OppointmentWindow(QMainWindow):

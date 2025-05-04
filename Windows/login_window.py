@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QLineEdit, )
-from ui.login_window_ui import setup_ui
+from ui.windows.login_window_ui import setup_ui
 from ui.styles import LOGIN_STYLE, BUTTON_STYLE_LOGIN
 from Windows.signup_window import SignupWindow
 

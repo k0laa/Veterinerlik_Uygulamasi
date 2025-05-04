@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QLineEdit
 from utils.database import Database
-from ui.singup_window_ui import setup_ui
+from ui.windows.singup_window_ui import setup_ui
 
 
 class SignupWindow(QMainWindow):

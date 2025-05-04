@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QTableWidgetItem, QLabel
 from PyQt5.QtCore import Qt, QDate, QTime
-from ui.doctor_main_window_ui import setup_ui
+from ui.windows.doctor_main_window_ui import setup_ui
 from ui.styles import DOCTOR_STYLE_INFO
 from ui.widgets.hasta_karti import HastaKartiWidget
 from Windows.appointment_window import OppointmentWindow
