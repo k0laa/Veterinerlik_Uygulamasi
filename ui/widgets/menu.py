@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtGui import QIcon
 from ui.styles import MENU_STYLE
+from Windows.login_window import LoginWindow
 
 
 def setup_menu(window):
@@ -20,6 +21,5 @@ def setup_menu(window):
 
 def close_win(window):
     window.close_win()
-    from Windows.login_window import LoginWindow
     w = LoginWindow(window.database)
     w.show()

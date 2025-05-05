@@ -4,6 +4,7 @@ from ui.styles import TOOLBAR_STYLE
 from ui.tabs.profile_tab import setup_profile_tab
 from ui.tabs.randevular_tab import setup_randevular_tab
 from ui.tabs.hayvanlarim_tab import setup_hayvanlarim_tab
+from ui.widgets.menu import setup_menu
 
 
 def setup_ui(window):
@@ -13,6 +14,9 @@ def setup_ui(window):
     window.setWindowTitle("Veteriner Takip Sistemi - Kullanıcı Paneli")
     window.setGeometry(100, 100, 1200, 800)
     window.setWindowIcon(QIcon("resources/icons/app_icon.png"))
+
+    # Menü çubuğunu ayarla
+    setup_menu(window)
 
     # Toolbar oluştur
     window.toolbar = QToolBar()
