@@ -61,5 +61,9 @@ class HayvanKartiWidget(QWidget):
         ana_layout.addWidget(kart_container)
 
     def get_animal_image(self, animal_type):
-        image_paths = {"Kedi": "resources/icons/app_icon.png", "Köpek": "resources/icons/app_icon.png", "Kuş": "resources/icons/app_icon.png", }
-        return QPixmap(image_paths.get(animal_type, "images/default.png"))
+        image_paths = {"Kedi": "resources/pet_ico/cat.png",
+                       "Köpek": "resources/pet_ico/dog.png",
+                       "Kuş": "resources/pet_ico/bird.png",
+                       "Hamster": "resources/pet_ico/hamster.png",
+                       }
+        return QPixmap(image_paths.get(animal_type, "resources/pet_ico/other.png"))

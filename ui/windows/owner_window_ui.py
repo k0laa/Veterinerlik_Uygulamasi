@@ -32,9 +32,9 @@ def setup_ui(window):
     setup_randevular_tab(window, appointments_tab)
 
     # Toolbar butonlarını oluştur
-    window.profile_action = window.toolbar.addAction(QIcon("resources/icons/file.png"), "Profilim")
-    window.pets_action = window.toolbar.addAction(QIcon("resources/icons/file.png"), "Hayvanlarım")
-    window.appointments_action = window.toolbar.addAction(QIcon("resources/icons/file.png"), "Randevularım")
+    window.profile_action = window.toolbar.addAction(QIcon("resources/icons/profile.png"), "Profilim")
+    window.pets_action = window.toolbar.addAction(QIcon("resources/icons/my_pets.png"), "Hayvanlarım")
+    window.appointments_action = window.toolbar.addAction(QIcon("resources/icons/appointments.png"), "Randevularım")
 
     # Ana widget konteynerini oluştur
     window.stacked_widget = QStackedWidget()

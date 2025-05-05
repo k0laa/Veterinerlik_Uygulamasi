@@ -31,8 +31,6 @@ class AddPetWindow(QMainWindow):
             self.erkek_radio.setChecked(self.pet_data[3] == "Erkek")
             self.disi_radio.setChecked(self.pet_data[3] == "Dişi")
             self.yas_spinbox.setValue(self.pet_data[4])
-        else:
-            print("Hayvan bilgileri alınamadı.")
 
     def save_pet(self):
         try:
