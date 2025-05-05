@@ -20,4 +20,4 @@ def setup_randevular_tab(window, tab):
 
     window.randevu_main_layout = layout
 
-    add_appointment_btn.clicked.connect(window.add_appointment)
+    add_appointment_btn.clicked.connect(window.add_new_appointment)

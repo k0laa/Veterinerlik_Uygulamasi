@@ -184,6 +184,42 @@ class Database:
                            )
                        ''')
 
+        # Randevular tablosu
+        cursor.execute('''
+                       CREATE TABLE IF NOT EXISTS randevular
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           pet_id
+                           INTEGER
+                           NOT
+                           NULL,
+                           tarih
+                           TEXT
+                           NOT
+                           NULL,
+                           saat
+                           TEXT
+                           NOT
+                           NULL,
+                           durum
+                           TEXT
+                           DEFAULT
+                           'Bekliyor',
+                           FOREIGN
+                           KEY
+                       (
+                           pet_id
+                       ) REFERENCES pets
+                       (
+                           id
+                       )
+                           )
+                       ''')
+
         conn.commit()
         conn.close()
 
@@ -800,4 +836,57 @@ class Database:
 
         except Exception as e:
             print(f"Hayvan güncelleme hatası: {e}")
+            return False
+
+    def add_appointment(self, appointment_data):
+        """Randevu ekler"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                           INSERT INTO randevular (pet_id, tarih, saat, durum)
+                           VALUES (?, ?, ?, ?)
+                           ''', (appointment_data['pet_id'], appointment_data['tarih'], appointment_data['saat'], 'Bekliyor'))
+
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            print(f"Randevu ekleme hatası: {e}")
+            return False
+
+    def get_appointments(self, pet_id):
+        """Hayvana ait randevuları getirir"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                           SELECT id, pet_id, tarih, saat, durum
+                           FROM randevular
+                           WHERE pet_id = ?
+                           ''', (pet_id,))
+
+            appointments = cursor.fetchall()
+            conn.close()
+            return appointments
+        except Exception as e:
+            print(f"Randevu bilgilerini getirme hatası: {e}")
+            return None
+
+    def delete_appointment(self, appointment_id):
+        """Randevuyu siler"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            cursor.execute('DELETE FROM randevular WHERE id = ?', (appointment_id,))
+
+            conn.commit()
+            conn.close()
+            return True
+
+        except Exception as e:
+            print(f"Randevu silme hatası: {e}")
             return False

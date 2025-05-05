@@ -568,7 +568,7 @@ RANDEVU_KARTI_STYLE = """
     QPushButton#editBtn:hover {
         background-color: #8a6ca7;
     }
-    QPushButton#dltBtn {
+    QPushButton#cancelBtn {
         background-color: transparent;
         color: #6b4c8c;
         border: 2px solid #9b7bb8;
@@ -577,7 +577,7 @@ RANDEVU_KARTI_STYLE = """
         font-size: 12px;
         min-height: 30px;
     }
-    QPushButton#dltBtn:hover {
+    QPushButton#cancelBtn:hover {
         background-color: #f0e6ff;
     }
 """

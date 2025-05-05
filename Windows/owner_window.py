@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QMessageBox, QLineEdi
 from Windows.add_appointment_window import AddAppointmentWindow
 from ui.styles import SAVE_BTN_STYLE, EDIT_BTN_STYLE, DOCTOR_STYLE_INFO
 from ui.widgets.hayvan_karti import HayvanKartiWidget
+from ui.widgets.randevu_karti import RandevuKartiWidget
 from ui.windows.owner_window_ui import setup_ui
 from Windows.add_pet_window import AddPetWindow
 
@@ -14,10 +15,9 @@ class PatientOwnerWindow(QMainWindow):
         super().__init__()
 
         # Daha sonra kullanılacak olan UI bileşenlerini tanımlama
+        self.randevu_kart_layout = None
         self.add_appointment_window = None
         self.pets_tab = None
-        self.hayvan_main_layout = None
-        self.randevu_main_layout = None
         self.add_pet_window = None
         self.hayvan_kart_layout = None
         self.cancel_button = None
@@ -47,6 +47,10 @@ class PatientOwnerWindow(QMainWindow):
             self.email.setText(self.user_data['email'])
             self.phone.setText(self.user_data['phone'])
             self.username.setText(self.user_data['username'])
+            self.exist_password.setText("")
+            self.new_password.setText("")
+            self.password_confirm.setText("")
+
         else:
             QMessageBox.warning(self, "Uyarı", "Profil bilgileri yüklenemedi.")
 
@@ -138,6 +142,12 @@ class PatientOwnerWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Bir hata oluştu: {str(e)}")
 
+    def add_new_pet(self):
+        """Yeni bir hayvan eklemek için pencere açar"""
+        self.add_pet_window = AddPetWindow(self.db, None, self.user_data['id'])  # Referansı sakla
+        self.add_pet_window.show()
+        self.add_pet_window.closeEvent = lambda event: self.load_pets()
+
     def load_pets(self):
         """Kullanıcının hayvanlarını yükler ve tabloya yerleştirir"""
         # Mevcut kartları temizle
@@ -169,12 +179,6 @@ class PatientOwnerWindow(QMainWindow):
         self.add_pet_window.show()
         self.add_pet_window.closeEvent = lambda event: self.load_pets()
 
-    def add_new_pet(self):
-        """Yeni bir hayvan eklemek için pencere açar"""
-        self.add_pet_window = AddPetWindow(self.db, None, self.user_data['id'])  # Referansı sakla
-        self.add_pet_window.show()
-        self.add_pet_window.closeEvent = lambda event: self.load_pets()
-
     def delete_pet(self, pet_id):
         """Seçilen hayvanı siler"""
         self.db.delete_pet(pet_id)
@@ -187,7 +191,37 @@ class PatientOwnerWindow(QMainWindow):
         self.add_appointment_window.closeEvent = lambda event: self.load_appointments()
 
     def load_appointments(self):
-        pass
+        """Kullanıcının randevularını yükler ve tabloya yerleştirir"""
+        # Mevcut randevu kartlarını temizle
+        if hasattr(self, 'randevu_main_layout'):
+            while self.randevu_kart_layout.count():
+                child = self.randevu_kart_layout.takeAt(0)
+                if child.widget():
+                    child.widget().deleteLater()
+
+        pets = self.db.get_pets(self.user_data['id'])
+        have_appointments = False
+        for pet in pets:
+            appointments = self.db.get_appointments(pet[0])
+            if appointments:
+                have_appointments = True
+                for i, randevu_data in enumerate(appointments):
+                    randevu_karti = RandevuKartiWidget(randevu_data, pet[1])
+                    y = i // 3
+                    self.randevu_kart_layout.addWidget(randevu_karti, y, i % 3, alignment=Qt.AlignLeft)
+                    randevu_karti.cancel_btn.clicked.connect(lambda a: self.delete_appointment(randevu_data[0]))
+
+        if not have_appointments:
+            no_appointment_label = QLabel("Randevunuz bulunmamaktadır.")
+            no_appointment_label.setObjectName("info")
+            no_appointment_label.setStyleSheet(DOCTOR_STYLE_INFO)
+            no_appointment_label.setAlignment(Qt.AlignCenter)
+            self.randevu_kart_layout.addWidget(no_appointment_label)
+
+    def delete_appointment(self, appointment_id):
+        """Seçilen randevuyu siler"""
+        self.db.delete_appointment(appointment_id)
+        self.load_appointments()
 
     def toggle_password(self):
         """Şifre görünürlüğünü değiştirirme"""
@@ -241,3 +275,5 @@ class PatientOwnerWindow(QMainWindow):
         self.edit_button.setText("Düzenle")
         self.edit_button.setStyleSheet(EDIT_BTN_STYLE)
         self.cancel_button.setVisible(False)
+
+        self.load_profile()

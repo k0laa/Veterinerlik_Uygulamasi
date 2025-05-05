@@ -70,5 +70,7 @@ def setup_ui(window):
 
         if index == 1:
             window.load_pets()
+        if index == 2:
+            window.load_appointments()
 
     switch_to_tab(1)
