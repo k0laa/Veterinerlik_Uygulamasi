@@ -78,9 +78,6 @@ def setup_ui(window):
     info.setObjectName("info")
     info.setAlignment(Qt.AlignCenter)
 
-
-
-
     # Ana widget konteynerini oluştur
     stacked_widget = QWidget()
     window.setCentralWidget(stacked_widget)
@@ -133,9 +130,6 @@ def setup_ui(window):
     layout.addWidget(info)
     stacked_widget.setLayout(layout)
 
-
-
-
     # enter tuşu ile geçiş
     window.username_input.returnPressed.connect(window.password_input.setFocus)
     window.password_input.returnPressed.connect(window.login_button.click)
@@ -151,4 +145,3 @@ def setup_ui(window):
     # Kayıt ol ve giriş yap butonları
     window.signup_button.clicked.connect(window.show_signup)
     window.login_button.clicked.connect(window.login)
-

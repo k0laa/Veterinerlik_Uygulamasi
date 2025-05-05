@@ -55,9 +55,6 @@ def setup_raporlar_tab(window, tab):
     window.delete_button = QPushButton("Seçili Kaydı Sil")
     window.delete_button.setStyleSheet(BUTTON_STYLE)
 
-
-
-
     # Tab düzeni
     layout = QVBoxLayout()
     tab.setLayout(layout)
@@ -83,12 +80,7 @@ def setup_raporlar_tab(window, tab):
 
     layout.addLayout(button_layout)
 
-
-
-
-
     # Sinyal bağlantıları
     window.search_input.textChanged.connect(window.filter_reports)
     window.delete_button.clicked.connect(window.delete_record)
     window.edit_button.clicked.connect(window.edit_record)
-

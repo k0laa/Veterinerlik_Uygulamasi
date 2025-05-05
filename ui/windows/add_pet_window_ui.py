@@ -1,7 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QLineEdit, QComboBox, QSpinBox, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget, QRadioButton, QFormLayout
-
 from ui.styles import INPUT_STYLE, BUTTON_STYLE, MAIN_STYLE, RADIO_STYLE
 
 
@@ -12,7 +11,6 @@ def setup_ui(window):
     window.setWindowTitle("Hayvan Ekle")
     window.setGeometry(100, 100, 400, 300)
     window.setWindowIcon(QIcon("resources/icons/app_icon.png"))
-
 
     # Ana widget ve layout
     central_widget = QWidget(window)

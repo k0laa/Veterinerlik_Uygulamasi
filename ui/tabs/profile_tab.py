@@ -1,12 +1,9 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QFormLayout, QLineEdit, QPushButton, QHBoxLayout, QLabel, QWidget
-
 from ui.styles import PROFILE_STYLE
 
 
 def setup_profile_tab(window, tab):
-
-
     tab.setStyleSheet(PROFILE_STYLE)
 
     # Sol Başlık
@@ -17,7 +14,6 @@ def setup_profile_tab(window, tab):
     window.first_name = QLineEdit()
     window.first_name.setPlaceholderText("Ad Soyad")
     window.first_name.setFixedHeight(40)
-
 
     # TC Kimlik No Input
     window.tc_id = QLineEdit()
@@ -80,14 +76,10 @@ def setup_profile_tab(window, tab):
     window.edit_button.setCursor(Qt.PointingHandCursor)
     window.edit_button.setFixedHeight(45)
 
-
-
-
     # Main layout
     main_layout = QVBoxLayout()
     main_layout.setContentsMargins(30, 30, 30, 30)
     main_layout.setSpacing(20)
-
 
     # Form layout
     form_layout = QHBoxLayout()
@@ -130,7 +122,6 @@ def setup_profile_tab(window, tab):
     main_layout.addLayout(form_layout)
     main_layout.addSpacing(20)
 
-
     # Button layout
     button_layout = QHBoxLayout()
     button_layout.setSpacing(20)
@@ -157,7 +148,3 @@ def setup_profile_tab(window, tab):
     window.exist_password.setReadOnly(True)
     window.new_password.setReadOnly(True)
     window.password_confirm.setReadOnly(True)
-
-
-
-

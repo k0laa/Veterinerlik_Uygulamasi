@@ -1,7 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtWidgets import QLineEdit, QComboBox, QSpinBox, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget, QRadioButton, QFormLayout, QDateEdit, QTimeEdit, QMessageBox
-
+from PyQt5.QtWidgets import QComboBox, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget, QFormLayout, QDateEdit, QTimeEdit
 from ui.styles import INPUT_STYLE, RANDEVU_STYLE
 
 
@@ -39,7 +38,6 @@ def setup_ui(window):
     window.ad_combo.setStyleSheet(INPUT_STYLE)
     form_layout.addRow(ad_label, window.ad_combo)
 
-
     # Takvim inputu
     tarih_label = QLabel("Tarih:")
     window.tarih_input = QDateEdit()
@@ -63,9 +61,8 @@ def setup_ui(window):
     button_layout = QHBoxLayout()
     save_button = QPushButton("Kaydet")
     save_button.setObjectName("saveBtn")
-    save_button.clicked.connect(window.save_appointment)  #Randevuyu kaydeder
+    save_button.clicked.connect(window.save_appointment)  # Randevuyu kaydeder
 
     button_layout.addWidget(cancel_button)
     button_layout.addWidget(save_button)
     main_layout.addLayout(button_layout)
-

@@ -35,9 +35,6 @@ def setup_ui(window):
     kaydet_button = QPushButton("Kaydet")
     kaydet_button.setStyleSheet(BUTTON_STYLE)
 
-
-
-
     # Ana widget
     window.stacked_widget = QWidget()
     window.setCentralWidget(window.stacked_widget)
@@ -71,8 +68,5 @@ def setup_ui(window):
     layout.addWidget(kaydet_button)
 
     window.stacked_widget.setLayout(layout)
-
-
-
 
     kaydet_button.clicked.connect(window.save_to_database)

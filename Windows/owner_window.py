@@ -1,13 +1,12 @@
 import hashlib
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QMessageBox, QLineEdit, QLabel, QGridLayout, QWidget
-
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, QLineEdit, QLabel
 from Windows.add_appointment_window import AddAppointmentWindow
+from Windows.add_pet_window import AddPetWindow
 from ui.styles import SAVE_BTN_STYLE, EDIT_BTN_STYLE, DOCTOR_STYLE_INFO
 from ui.widgets.hayvan_karti import HayvanKartiWidget
 from ui.widgets.randevu_karti import RandevuKartiWidget
 from ui.windows.owner_window_ui import setup_ui
-from Windows.add_pet_window import AddPetWindow
 
 
 class PatientOwnerWindow(QMainWindow):

@@ -90,10 +90,6 @@ def setup_ui(window):
     window.register_button.setCursor(Qt.PointingHandCursor)
     window.register_button.setFixedHeight(45)
 
-
-
-
-
     # Ana widget konteynerini oluştur
     stacked_widget = QWidget()
     window.setCentralWidget(stacked_widget)
@@ -160,9 +156,6 @@ def setup_ui(window):
     main_layout.addLayout(button_layout)
 
     stacked_widget.setLayout(main_layout)
-
-
-
 
     window.register_button.clicked.connect(window.register_user)
     window.show_password_button.clicked.connect(window.toggle_password)

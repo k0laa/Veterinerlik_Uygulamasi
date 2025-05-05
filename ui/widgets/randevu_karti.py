@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
-
 from ui.styles import RANDEVU_KARTI_STYLE
 
 

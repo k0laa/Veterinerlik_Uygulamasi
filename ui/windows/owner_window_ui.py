@@ -36,9 +36,6 @@ def setup_ui(window):
     window.pets_action = window.toolbar.addAction(QIcon("resources/icons/file.png"), "Hayvanlarım")
     window.appointments_action = window.toolbar.addAction(QIcon("resources/icons/file.png"), "Randevularım")
 
-
-
-
     # Ana widget konteynerini oluştur
     window.stacked_widget = QStackedWidget()
     window.setCentralWidget(window.stacked_widget)
@@ -49,9 +46,6 @@ def setup_ui(window):
 
     window.stacked_widget.addWidget(appointments_tab)
 
-
-
-
     window.profile_action.setCheckable(True)
     window.pets_action.setCheckable(True)
     window.appointments_action.setCheckable(True)
@@ -60,7 +54,6 @@ def setup_ui(window):
     window.profile_action.triggered.connect(lambda: switch_to_tab(0))
     window.pets_action.triggered.connect(lambda: switch_to_tab(1))
     window.appointments_action.triggered.connect(lambda: switch_to_tab(2))
-
 
     def switch_to_tab(index):
         window.profile_action.setChecked(index == 0)

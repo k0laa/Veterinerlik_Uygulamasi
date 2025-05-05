@@ -35,9 +35,6 @@ def setup_ui(window):
 
     window.bekleyen_action = window.toolbar.addAction(QIcon("resources/icons/waiting.png"), "Bekleyen Hastalar")
 
-
-
-
     # Menü çubuğunu ayarla
     setup_menu(window)
 
@@ -46,9 +43,6 @@ def setup_ui(window):
 
     window.stacked_widget.addWidget(raporlar_widget)
     window.stacked_widget.addWidget(bekleyen_widget)
-
-
-
 
     # Başlangıç sekmesini ayarla
     window.raporlar_action.setCheckable(True)

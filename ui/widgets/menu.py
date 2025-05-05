@@ -1,4 +1,3 @@
-from os import close
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtGui import QIcon
 from ui.styles import MENU_STYLE

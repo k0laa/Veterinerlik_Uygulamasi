@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMainWindow
-
 from ui.styles import GROUP_STYLE, BUTTON_STYLE, ACIL_STYLE
 
 
@@ -12,7 +11,7 @@ class HastaKartiWidget(QWidget):
     def setup_ui(self, hasta_data):
         layout = QVBoxLayout(self)
         self.setStyleSheet(GROUP_STYLE)
-        
+
         # Hasta durumu acil ise
         if hasta_data[7] == "Acil Durum":
             acil_label = QLabel("⚠️ ACİL DURUM")

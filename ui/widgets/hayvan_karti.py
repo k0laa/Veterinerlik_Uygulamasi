@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
 from PyQt5.QtGui import QPixmap
-
 from ui.styles import HAYVAN_KARTI_STYLE
 
 
@@ -60,7 +59,6 @@ class HayvanKartiWidget(QWidget):
         container_layout.addLayout(button_layout)
 
         ana_layout.addWidget(kart_container)
-
 
     def get_animal_image(self, animal_type):
         image_paths = {"Kedi": "resources/icons/app_icon.png", "Köpek": "resources/icons/app_icon.png", "Kuş": "resources/icons/app_icon.png", }

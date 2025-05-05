@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QMessageBox, QMainWindow
-
 from ui.windows.add_appointment_window_ui import setup_ui
 
 
@@ -24,9 +23,7 @@ class AddAppointmentWindow(QMainWindow):
         date = self.tarih_input.date().toString("yyyy-MM-dd")
         time = self.saat_input.time().toString("HH:mm")
 
-        appointment_data = {'pet_id':pet_id,
-                            'tarih': date,
-                            'saat': time}
+        appointment_data = {'pet_id': pet_id, 'tarih': date, 'saat': time}
 
         # Veritabanına randevu ekle
         if self.database.add_appointment(appointment_data):
@@ -42,4 +39,3 @@ class AddAppointmentWindow(QMainWindow):
     def close_win(self):
         """Pencereyi kapatır."""
         self.close()
-

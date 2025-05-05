@@ -1,8 +1,6 @@
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                             QLineEdit, QComboBox, QRadioButton, QSpinBox,
-                              QTextEdit)
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QComboBox, QRadioButton, QSpinBox, QTextEdit)
+from ui.styles import INPUT_STYLE, RADIO_STYLE
 
-from ..styles import INPUT_STYLE, RADIO_STYLE, SLIDER_STYLE, PROGRESS_STYLE
 
 class FormElementsWidget(QWidget):
     def __init__(self, parent=None):
