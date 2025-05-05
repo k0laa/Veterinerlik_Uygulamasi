@@ -5,8 +5,8 @@ from ui.styles import HAYVAN_KARTI_STYLE
 
 
 class HayvanKartiWidget(QWidget):
-    def __init__(self, hasta_data, parent=None):
-        super().__init__(parent)
+    def __init__(self, hasta_data):
+        super().__init__()
         self.edit_btn = None
         self.delete_btn = None
         self.setFixedSize(450, 225)
@@ -30,14 +30,12 @@ class HayvanKartiWidget(QWidget):
 
         # Sağda metinler
         right_info = QVBoxLayout()
-        right_info.addStretch()
 
         right_info.addWidget(QLabel(f"<b>Hayvan Adı:</b> {hasta_data[1]}"))
         right_info.addWidget(QLabel(f"<b>Tür:</b> {hasta_data[2]}"))
         right_info.addWidget(QLabel(f"<b>Cins:</b> {hasta_data[3]}"))
         right_info.addWidget(QLabel(f"<b>Cinsiyet:</b> {hasta_data[4]}"))
         right_info.addWidget(QLabel(f"<b>Yaş:</b> {hasta_data[5]}"))
-        right_info.addStretch()
 
         # Düzenleme Butonu
         self.edit_btn = QPushButton("Düzenle")

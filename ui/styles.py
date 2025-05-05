@@ -550,6 +550,68 @@ HAYVAN_KARTI_STYLE = """
         background-color: #f0e6ff;
     }
 """
+RANDEVU_KARTI_STYLE = """
+    QWidget#kart {
+        background-color: #f5f0ff;
+        border: 1px solid #d4c6e6;
+        border-radius: 8px;
+        }
+    QPushButton#editBtn {
+        background-color: #9b7bb8;
+        color: white;
+        border: 2px solid #9b7bb8;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 12px;
+        min-height: 30px;
+    }
+    QPushButton#editBtn:hover {
+        background-color: #8a6ca7;
+    }
+    QPushButton#dltBtn {
+        background-color: transparent;
+        color: #6b4c8c;
+        border: 2px solid #9b7bb8;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 12px;
+        min-height: 30px;
+    }
+    QPushButton#dltBtn:hover {
+        background-color: #f0e6ff;
+    }
+"""
+RANDEVU_STYLE = """
+    QWidget#kart {
+        background-color: #f5f0ff;
+        border: 1px solid #d4c6e6;
+        border-radius: 8px;
+        }
+    QPushButton#saveBtn {
+        background-color: #9b7bb8;
+        color: white;
+        border: 2px solid #9b7bb8;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 12px;
+        min-height: 30px;
+    }
+    QPushButton#saveBtn:hover {
+        background-color: #8a6ca7;
+    }
+    QPushButton#cancelBtn {
+        background-color: transparent;
+        color: #6b4c8c;
+        border: 2px solid #9b7bb8;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 12px;
+        min-height: 30px;
+    }
+    QPushButton#cancelBtn:hover {
+        background-color: #f0e6ff;
+    }
+"""
 
 NEW_BUTTON_STYLE = """
     QPushButton {

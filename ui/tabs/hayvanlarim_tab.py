@@ -1,7 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QGridLayout, QVBoxLayout, QPushButton
 from ui.styles import NEW_BUTTON_STYLE
-from ui.widgets.hayvan_karti import HayvanKartiWidget
 
 
 def setup_hayvanlarim_tab(window, tab):
@@ -18,7 +17,6 @@ def setup_hayvanlarim_tab(window, tab):
     main_layout.addWidget(add_pet_btn, alignment=Qt.AlignRight)
     main_layout.addLayout(window.hayvan_kart_layout)
     main_layout.addStretch()
-
 
     window.hayvan_main_layout = main_layout
 

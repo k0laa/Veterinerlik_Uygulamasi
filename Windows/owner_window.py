@@ -1,6 +1,8 @@
 import hashlib
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QMessageBox, QLineEdit, QLabel, QGridLayout, QWidget
+
+from Windows.add_appointment_window import AddAppointmentWindow
 from ui.styles import SAVE_BTN_STYLE, EDIT_BTN_STYLE, DOCTOR_STYLE_INFO
 from ui.widgets.hayvan_karti import HayvanKartiWidget
 from ui.windows.owner_window_ui import setup_ui
@@ -12,8 +14,10 @@ class PatientOwnerWindow(QMainWindow):
         super().__init__()
 
         # Daha sonra kullanılacak olan UI bileşenlerini tanımlama
+        self.add_appointment_window = None
         self.pets_tab = None
         self.hayvan_main_layout = None
+        self.randevu_main_layout = None
         self.add_pet_window = None
         self.hayvan_kart_layout = None
         self.cancel_button = None
@@ -176,37 +180,14 @@ class PatientOwnerWindow(QMainWindow):
         self.db.delete_pet(pet_id)
         self.load_pets()  # Hayvan silindikten sonra tabloyu güncelle
 
+    def add_new_appointment(self):
+        """Yeni randevu eklemek için pencere açar"""
+        self.add_appointment_window = AddAppointmentWindow(self.db, self.user_data)
+        self.add_appointment_window.show()
+        self.add_appointment_window.closeEvent = lambda event: self.load_appointments()
+
     def load_appointments(self):
-
-        """Kullanıcının randevularını yükler ve tabloya yerleştirir"""
-        appointments = self.db.get_user_appointments(self.user_data['id'])
-        if appointments:
-            self.appointments_table.setRowCount(len(appointments))
-            for i, appointment in enumerate(appointments):
-                self.appointments_table.setItem(i, 0, QTableWidgetItem(appointment['date']))
-                self.appointments_table.setItem(i, 1, QTableWidgetItem(appointment['time']))
-                self.appointments_table.setItem(i, 2, QTableWidgetItem(appointment['vet']))
-                self.appointments_table.setItem(i, 3, QTableWidgetItem(appointment['status']))
-        else:
-            print("Randevu bilgileri yüklenemedi.")
-            self.appointments_table.setRowCount(0)
-            self.appointments_table.setColumnCount(4)
-            self.appointments_table.setHorizontalHeaderLabels(["Tarih", "Saat", "Veteriner", "Durum"])
-
-    def add_appointment(self):
-        """Yeni bir randevu almak için pencere açar"""
-        from Windows.add_appointment_window import AddAppointmentWindow
-        add_appointment_window = AddAppointmentWindow(self.db, self.user_data)
-        add_appointment_window.exec_()
-        self.load_appointments()  # Randevu alındıktan sonra tabloyu güncelle
-
-    def update_pet(self):
-        """Seçilen hayvanı günceller"""
-        selected_row = self.pets_table.currentRow()
-        if selected_row >= 0:
-            pet_name = self.pets_table.item(selected_row, 0).text()  # from Windows.update_pet_window import UpdatePetWindow  # update_pet_window = UpdatePetWindow(self.db, pet_name)  # update_pet_window.exec_()  # self.load_pets()
-        else:
-            print("Güncellenecek hayvan seçilmedi.")
+        pass
 
     def toggle_password(self):
         """Şifre görünürlüğünü değiştirirme"""
