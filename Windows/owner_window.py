@@ -200,20 +200,18 @@ class PatientOwnerWindow(QMainWindow):
 
         pets = self.db.get_pets(self.user_data['id'])
         have_appointments = False
+        i= 0
         for pet in pets:
             appointments = self.db.get_appointments(pet[0])
             if appointments:
                 have_appointments = True
-                for i, randevu_data in enumerate(appointments):
-                    try:
-                        randevu_karti = RandevuKartiWidget(randevu_data, pet[1])
-                        y = i // 3
-                        self.randevu_kart_layout.addWidget(randevu_karti, y, i % 3, alignment=Qt.AlignLeft)
-                        patient_id = self.db.get_patient_id(pet[1], randevu_data[2], randevu_data[3])
-                        print(pet[1], randevu_data[2], randevu_data[3], patient_id)
-                        randevu_karti.cancel_btn.clicked.connect(lambda a: self.delete_appointment(randevu_data[0], patient_id))
-                    except Exception as e:
-                        print(f"Randevu kartı oluşturulurken hata: {str(e)}")
+                for randevu_data in appointments:
+                    patient_id = self.db.get_patient_id(pet[1], randevu_data[2], randevu_data[3])
+                    randevu_karti = RandevuKartiWidget(randevu_data, pet[1])
+                    y = i // 3
+                    self.randevu_kart_layout.addWidget(randevu_karti, y, i % 3, alignment=Qt.AlignLeft)
+                    randevu_karti.cancel_btn.clicked.connect(lambda a: self.delete_appointment(randevu_data[0], patient_id))
+                    i += 1
 
         if not have_appointments:
             no_appointment_label = QLabel("Randevunuz bulunmamaktadır.")
