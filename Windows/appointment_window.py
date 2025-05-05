@@ -1,3 +1,4 @@
+import datetime
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from ui.windows.appointment_window_ui import setup_ui
 
@@ -104,6 +105,9 @@ class OppointmentWindow(QMainWindow):
                 if self.ilac_listesi.item(i).isSelected():
                     ilaclar.append(self.ilac_listesi.item(i).text())
             data['ilaclar'] = ', '.join(ilaclar)
+
+            data['tarih'] = datetime.datetime.now().strftime("%Y-%m-%d")
+            data['saat'] = datetime.datetime.now().strftime("%H:%M")
 
             # Kaydet veya güncelle
             if self.hasta_id:

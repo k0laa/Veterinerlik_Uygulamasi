@@ -124,6 +124,14 @@ class Database:
                            DATETIME
                            DEFAULT
                            CURRENT_TIMESTAMP,
+                           tarih
+                           TEXT
+                           DEFAULT
+                           NULL,
+                           saat
+                           TEXT
+                           DEFAULT
+                           NULL,
                            FOREIGN
                            KEY
                        (
@@ -178,42 +186,6 @@ class Database:
                        (
                            ekleyen_id
                        ) REFERENCES kullanicilar
-                       (
-                           id
-                       )
-                           )
-                       ''')
-
-        # Randevular tablosu
-        cursor.execute('''
-                       CREATE TABLE IF NOT EXISTS randevular
-                       (
-                           id
-                           INTEGER
-                           PRIMARY
-                           KEY
-                           AUTOINCREMENT,
-                           pet_id
-                           INTEGER
-                           NOT
-                           NULL,
-                           tarih
-                           TEXT
-                           NOT
-                           NULL,
-                           saat
-                           TEXT
-                           NOT
-                           NULL,
-                           durum
-                           TEXT
-                           DEFAULT
-                           'Bekliyor',
-                           FOREIGN
-                           KEY
-                       (
-                           pet_id
-                       ) REFERENCES pets
                        (
                            id
                        )
@@ -371,14 +343,15 @@ class Database:
 
             cursor.execute('''
                            INSERT INTO hastalar (hayvan_adi, sahip_adi, tur, cinsiyet, cins, yas,
-                                                 durum, ilerleme, sikayet, aciklama, ilaclar, ekleyen_id)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                                 durum, ilerleme, sikayet, aciklama, ilaclar, ekleyen_id, tarih, saat)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                            ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data.get('cins', ''),  # Boş değer yerine varsayılan değer kullan
                                  data['yas'], data['durum'], data['ilerleme'], data.get('sikayet', ''),  # Boş değer yerine varsayılan değer kullan
                                  data.get('aciklama', ''),  # Boş değer yerine varsayılan değer kullan
                                  data.get('ilaclar', ''),  # Boş değer yerine varsayılan değer kullan
-                                 data.get('ekleyen_id', None)  # Null değer yerine None kullan
-                                 ))
+                                 data.get('ekleyen_id', None),  # Null değer yerine None kullan
+                                 data.get('tarih', None),  # Null değer yerine None kullan
+                                 data.get('saat', None)))
 
             conn.commit()
             conn.close()
@@ -436,22 +409,6 @@ class Database:
             print(f"Veritabanı hatası: {e}")
             return False
 
-    def update_patient(self, patient_id, column, value):
-        """Hasta bilgilerini günceller"""
-        try:
-            conn = sqlite3.connect(str(self.db_file))
-            cursor = conn.cursor()
-
-            cursor.execute(f'UPDATE hastalar SET {column} = ? WHERE id = ?', (value, patient_id))
-
-            conn.commit()
-            conn.close()
-            return True
-
-        except Exception as e:
-            print(f"Veritabanı hatası: {e}")
-            return False
-
     def get_statistics(self):
         """İstatistikleri hesaplar"""
         try:
@@ -493,9 +450,12 @@ class Database:
                                ilerleme=?,
                                sikayet=?,
                                aciklama=?,
-                               ilaclar=?
+                               ilaclar=?,
+                               tarih=?,
+                               saat=?
                            WHERE id = ?
-                           ''', (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data['cins'], data['yas'], data['durum'], data['ilerleme'], data['sikayet'], data['aciklama'], data['ilaclar'], record_id))
+                           ''',
+                           (data['hayvan_adi'], data['sahip_adi'], data['tur'], data['cinsiyet'], data['cins'], data['yas'], data['durum'], data['ilerleme'], data['sikayet'], data['aciklama'], data['ilaclar'], data['tarih'], data['saat'], record_id))
 
             conn.commit()
             conn.close()
@@ -516,53 +476,12 @@ class Database:
             columns = [column[1] for column in cursor.fetchall()]
 
             # 'sikayet' sütunu yoksa ekle
-            if 'sikayet' not in columns:
-                cursor.execute('ALTER TABLE hastalar ADD COLUMN sikayet TEXT DEFAULT NULL')
-                print("'sikayet' sütunu eklendi")
-
-            # Randevular tablosunu ekle
-            cursor.execute('''
-                           CREATE TABLE IF NOT EXISTS randevular
-                           (
-                               id
-                               INTEGER
-                               PRIMARY
-                               KEY
-                               AUTOINCREMENT,
-                               hasta_id
-                               INTEGER
-                               NOT
-                               NULL,
-                               tarih
-                               TEXT
-                               NOT
-                               NULL,
-                               saat
-                               TEXT
-                               NOT
-                               NULL,
-                               tip
-                               TEXT
-                               NOT
-                               NULL,
-                               notlar
-                               TEXT
-                               DEFAULT
-                               NULL,
-                               durum
-                               TEXT
-                               DEFAULT
-                               'Bekliyor',
-                               FOREIGN
-                               KEY
-                           (
-                               hasta_id
-                           ) REFERENCES hastalar
-                           (
-                               id
-                           )
-                               )
-                           ''')
+            if 'tarih' not in columns:
+                cursor.execute('ALTER TABLE hastalar ADD COLUMN tarih TEXT DEFAULT NULL')
+                print("'tarih' sütunu eklendi")
+            if 'saat' not in columns:
+                cursor.execute('ALTER TABLE hastalar ADD COLUMN saat TEXT DEFAULT NULL')
+                print("'saat' sütunu eklendi")
 
             conn.commit()
             conn.close()
@@ -890,3 +809,23 @@ class Database:
         except Exception as e:
             print(f"Randevu silme hatası: {e}")
             return False
+
+    def get_patient_id(self,pet_name, date, time):
+        """Hasta ID'sini alır"""
+        try:
+            conn = sqlite3.connect(str(self.db_file))
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                           SELECT id
+                           FROM hastalar
+                           WHERE hayvan_adi = ? AND tarih = ? AND saat = ?
+                           ''', (pet_name, date, time))
+
+            patient_id = cursor.fetchone()
+            conn.close()
+            return patient_id[0] if patient_id else None
+
+        except Exception as e:
+            print(f"Hasta ID'sini alma hatası: {e}")
+            return None

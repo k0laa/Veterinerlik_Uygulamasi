@@ -205,10 +205,15 @@ class PatientOwnerWindow(QMainWindow):
             if appointments:
                 have_appointments = True
                 for i, randevu_data in enumerate(appointments):
-                    randevu_karti = RandevuKartiWidget(randevu_data, pet[1])
-                    y = i // 3
-                    self.randevu_kart_layout.addWidget(randevu_karti, y, i % 3, alignment=Qt.AlignLeft)
-                    randevu_karti.cancel_btn.clicked.connect(lambda a: self.delete_appointment(randevu_data[0]))
+                    try:
+                        randevu_karti = RandevuKartiWidget(randevu_data, pet[1])
+                        y = i // 3
+                        self.randevu_kart_layout.addWidget(randevu_karti, y, i % 3, alignment=Qt.AlignLeft)
+                        patient_id = self.db.get_patient_id(pet[1], randevu_data[2], randevu_data[3])
+                        print(pet[1], randevu_data[2], randevu_data[3], patient_id)
+                        randevu_karti.cancel_btn.clicked.connect(lambda a: self.delete_appointment(randevu_data[0], patient_id))
+                    except Exception as e:
+                        print(f"Randevu kartı oluşturulurken hata: {str(e)}")
 
         if not have_appointments:
             no_appointment_label = QLabel("Randevunuz bulunmamaktadır.")
@@ -217,9 +222,11 @@ class PatientOwnerWindow(QMainWindow):
             no_appointment_label.setAlignment(Qt.AlignCenter)
             self.randevu_kart_layout.addWidget(no_appointment_label)
 
-    def delete_appointment(self, appointment_id):
+    def delete_appointment(self, appointment_id, patient_id=None):
         """Seçilen randevuyu siler"""
         self.db.delete_appointment(appointment_id)
+        if patient_id:
+            self.db.delete_patient(patient_id)
         self.load_appointments()
 
     def toggle_password(self):
