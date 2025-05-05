@@ -30,8 +30,8 @@ class PatientOwnerWindow(QMainWindow):
         self.email = None
         self.tc_id = None
         self.first_name = None
-
         self.db = db
+        self.database = db
         self.user_data = user_data
 
         setup_ui(self)
@@ -281,3 +281,7 @@ class PatientOwnerWindow(QMainWindow):
         self.cancel_button.setVisible(False)
 
         self.load_profile()
+
+    def close_win(self):
+        """Pencereyi kapatır"""
+        self.close()

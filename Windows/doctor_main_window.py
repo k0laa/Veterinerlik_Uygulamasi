@@ -213,3 +213,7 @@ class DoctorWindow(QMainWindow):
             self.randevu_elements['not'].clear()
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Randevu formu temizlenirken hata: {str(e)}")
+
+    def close_win(self):
+        """Pencereyi kapatır"""
+        self.close()
