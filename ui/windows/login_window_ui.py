@@ -74,7 +74,7 @@ def setup_ui(window):
     window.signup_button.setFixedHeight(40)
 
     # Bilgilendirme Yazısı -- Demo için
-    info = QLabel("Varsayılan giriş: admin / admin")
+    info = QLabel("Varsayılan kullanıcı girişi: 123 / 123 \n Varsayılan doktor girişi: admin / admin")
     info.setObjectName("info")
     info.setAlignment(Qt.AlignCenter)
 
@@ -94,7 +94,7 @@ def setup_ui(window):
     # Butonlar için yatay layout
     button_layout = QHBoxLayout()
     button_layout.addWidget(window.patient_button)
-    button_layout.addWidget(window.secretary_button)
+    #button_layout.addWidget(window.secretary_button)
     button_layout.addWidget(window.doctor_button)
     button_layout.setSpacing(15)
     layout.addLayout(button_layout)
